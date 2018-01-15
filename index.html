@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Mercator projection</title>
+		<title>PyPSA visualisation</title>
 		<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="//d3js.org/topojson.v1.min.js"></script>
 		<script src="buses.json"></script>
@@ -48,7 +48,11 @@
 
 
 	<div id="container">
-		<h1>World map centered on European countries</h1>
+		<h1>Electrical demand: change the hour with the slider</h1>
+    <div id="sliderContainer">
+        <input id="timeslide" type="range" min="0" max="23" value="0" step="1"/><br>
+        <span id="range">0</span>
+    </div>
 
 	</div>
 		<script src="network.js"></script>

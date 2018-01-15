@@ -14,6 +14,7 @@ var h = 600;
 
 //Scale links
 var link_scale = 1000;
+var load_scale = 1000;
 
 
 //Define map projection
@@ -26,6 +27,13 @@ var projection = d3.geo.mercator() //utiliser une projection standard pour aplat
 //Define path generator
 var path = d3.geo.path()
     .projection(projection);
+
+
+
+
+document.getElementById("range").innerHTML=load.index[0];
+
+document.getElementById("timeslide").max=load.index.length-1;
 
 
 //Create SVG
@@ -56,9 +64,9 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
     bus_layer.selectAll("circle")
 	.data(index(buses.index)).enter()
 	.append("circle")
-	.attr("cx", function (d) { return projection([buses.x[d],buses.y[d]])[0] })
-	.attr("cy", function (d) { return projection([buses.x[d],buses.y[d]])[1] })
-	.attr("r", "8px")
+	.attr("cx", function (i) { return projection([buses.x[i],buses.y[i]])[0] })
+	.attr("cy", function (i) { return projection([buses.x[i],buses.y[i]])[1] })
+	.attr("r", function (i) { return load[buses.index[i]][0]/load_scale  })
 	.attr("fill", "red");
 
     line_layer = svg.append("g");
@@ -81,3 +89,16 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 
 });
+
+
+// when the input range changes update the value
+d3.select("#timeslide").on("input", function() {
+    update(+this.value);
+});
+
+
+function update(value) {
+    document.getElementById("range").innerHTML=load.index[value];
+    d3.selectAll("circle")
+	.attr("r", function (i) {return load[buses.index[i]][value]/load_scale  });
+}
