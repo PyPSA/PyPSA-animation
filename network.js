@@ -81,8 +81,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.enter()
 	.append("path")
 	.attr("d", function(i) { return lineFunction([projection([links.x0[i],links.y0[i]]),projection([links.x1[i],links.y1[i]])])})
-    	.attr("stroke", "rgba(0, 0, 255, 0.8)")
-	.attr("fill", "rgba(255, 0, 255, 0.8)")
+        .attr("class", "flowline")
         .attr("stroke-width", function(i) { return links.p_nom_opt[i]/link_scale});
 
 

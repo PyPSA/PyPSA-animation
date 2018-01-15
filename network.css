@@ -1,0 +1,58 @@
+
+
+svg {
+    background-color: white;
+}
+
+h1 {
+    color: rgb(115, 115, 115);
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding-bottom: 10px;
+
+}
+
+#container {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 1px 1px 1px 2px rgb(217, 217, 217);
+}
+
+path:hover {
+    fill: rgba(8, 81, 156, 0.2);
+    cursor:pointer;
+}
+
+.flowline {
+    fill: none;
+    stroke: black;
+    opacity: 0.5;
+    stroke-dasharray: 10, 4;
+    animation: flow 1s linear infinite;
+    -webkit-animation: flow 1s linear infinite;
+}
+
+@keyframes flow {
+    from {
+	stroke-dashoffset: 14;
+    }
+
+    to {
+	stroke-dashoffset: 0;
+    }
+}
+
+@-webkit-keyframes flow {
+    from {
+	stroke-dashoffset: 14;
+    }
+
+    to {
+	stroke-dashoffset: 0;
+    }
+}
