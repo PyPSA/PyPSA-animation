@@ -11,6 +11,11 @@ function index(array) {
 var w = 800;
 var h = 600;
 
+
+//Scale links
+var link_scale = 1000;
+
+
 //Define map projection
 
 var projection = d3.geo.mercator() //utiliser une projection standard pour aplatir les pôles, voir D3 projection plugin
@@ -32,8 +37,11 @@ var svg = d3.select("#container")
 //Load in GeoJSON data
 d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
+
+    countries = svg.append("g");
+
     //Bind data and create one path per GeoJSON feature
-    svg.selectAll("path")
+    countries.selectAll("path")
 	.data(json.features)
 	.enter()
 	.append("path")
@@ -41,12 +49,35 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.attr("stroke", "rgba(8, 81, 156, 0.2)")
 	.attr("fill", "rgba(8, 81, 156, 0.6)");
 
+
+    bus_layer = svg.append("g");
+
     // add circles to svg
-    svg.selectAll("circle")
+    bus_layer.selectAll("circle")
 	.data(index(buses.index)).enter()
 	.append("circle")
 	.attr("cx", function (d) { return projection([buses.x[d],buses.y[d]])[0] })
 	.attr("cy", function (d) { return projection([buses.x[d],buses.y[d]])[1] })
 	.attr("r", "8px")
 	.attr("fill", "red");
+
+    line_layer = svg.append("g");
+
+    var lineFunction = d3.svg.line()
+        .x(function(d) { return d[0] })
+        .y(function(d) { return d[1] })
+        .interpolate("linear");
+
+    line_layer.selectAll("path")
+	.data(index(links.index))
+	.enter()
+	.append("path")
+	.attr("d", function(i) { return lineFunction([projection([links.x0[i],links.y0[i]]),projection([links.x1[i],links.y1[i]])])})
+    	.attr("stroke", "rgba(0, 0, 255, 0.8)")
+	.attr("fill", "rgba(255, 0, 255, 0.8)")
+        .attr("stroke-width", function(i) { return links.p_nom_opt[i]/link_scale});
+
+
+
+
 });
