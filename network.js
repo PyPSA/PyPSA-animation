@@ -1,5 +1,11 @@
 
 
+function sum(array){
+    var total = 0;
+    for(var i=0; i < array.length; i++) { total += array[i]}
+    return total
+}
+
 
 //Width and height
 var w = 800;
@@ -82,6 +88,34 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .attr("class", "flowline")
         .attr("stroke-width", function(d, i) { return flows[start_index][i]/link_scale});
 
+
+    generator_layer = svg.append("g");
+
+    generators = generator_layer.selectAll("g")
+        .data(generation)
+        .enter()
+        .append("g")
+        .attr("transform", function(d,i) { return "translate(" + projection([buses.x[i],buses.y[i]])[0] +","+ projection([buses.x[i],buses.y[i]])[1] + ")" } );
+
+
+    // This is a function which transforms arc data into a path
+    var arc_path = d3.svg.arc()
+        .innerRadius(0)
+        .outerRadius(40);
+
+    // This is a function which turns a list of numbers into arc data (start angle, end angle,  etc.)
+    var pie = d3.layout.pie()
+	.sort(null);
+
+    //var carriers = ["gas", "onwind", "offwind", "solar"]
+    var colors = ["#835C3B","#3B6182","#ADD8E6","FFFF00"]
+
+    generators.selectAll("path")
+        .data(function(d) {var array = pie(d[start_index]); for(var i=0; i < array.length; i++) { array[i]["radius"] = sum(d[start_index])}; return array})
+        .enter()
+        .append("path")
+        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
+        .style("fill", function(d, i) { return colors[i] });
 
 
 
