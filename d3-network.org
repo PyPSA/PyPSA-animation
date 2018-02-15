@@ -1,0 +1,40 @@
+
+* links
+
+[[~/geek/javascript.org]]  (tips and tech on d3js)
+
+[[~/energy/fias-private.org]] (comparison with other websites)
+
+* TODO
+
+** export generation data and flows
+
+** Represent directional flows
+
+Either with animation OR with arrow
+
+** Represent generation at each node
+
+https://bl.ocks.org/mbostock/3887235
+
+Pie chart - how to represent load??? red circle under (if gen > load); red circle over (if gen < load)
+
+** Allow different scenarios to be loaded
+
+This will require more work...
+
+** Parallel graph
+
+Either for whole of Europe or individual country
+
+** see per-country time series, total capacity and energy
+
+also per scenario settings
+
+e.g. user from Ireland can see how each country deals with down periods with and without transmission
+
+
+** tmrow style wind/solar animation?
+
+
+why doesn't Chrome crash with tmrow.co wind animation??? If not, should be able to deal with network flows

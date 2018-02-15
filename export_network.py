@@ -1,7 +1,7 @@
-
 import pypsa, json
 
 network_name = "/home/tom/results/tom/snakemake/version-16/postnetworks/postnetwork-elec_only_opt.h5"
+n = pypsa.Network(network_name)
 
 coord_round = 3
 
@@ -11,15 +11,9 @@ num_snapshots = 24
 
 folder = "./"
 
-
-
-n = pypsa.Network(network_name)
-
 carrier = "AC"
 
-
 buses = n.buses[n.buses.carrier == carrier]
-
 
 data = {"index" : list(buses.index),
         "x" : list(buses.x.round(coord_round)),
@@ -30,7 +24,6 @@ data = {"index" : list(buses.index),
 with open(folder + 'buses.json', 'w') as fp:
     fp.write("var buses = ")
     json.dump(data, fp)
-
 
 links = n.links[n.links.index.str[2:3] == "-"]
 
@@ -51,7 +44,6 @@ with open(folder + 'links.json', 'w') as fp:
     fp.write("var links = ")
     json.dump(data, fp)
 
-
 data = {"index" : [str(i) for i in n.loads_t.p_set.index[:num_snapshots]]}
 
 for b in buses.index:
@@ -60,3 +52,27 @@ for b in buses.index:
 with open(folder + 'load-day.json', 'w') as fp:
     fp.write("var load = ")
     json.dump(data, fp)
+
+with open(folder + 'flow-day.json', 'w') as fp:
+    fp.write("var flows = ")
+    json.dump(n.links_t.p0[links.index][:num_snapshots].round(power_round).values.tolist(),fp)
+
+carriers = n.carriers.index[:4]
+print(carriers)
+
+with open(folder + 'carriers.json', 'w') as fp:
+    fp.write("var carriers = ")
+    json.dump(list(carriers), fp)
+
+data = []
+
+for ct in buses.index:
+    
+    #df of carrier * snapshots
+    df = n.generators_t.p.loc[:,n.generators.bus == ct].groupby(n.generators.carrier,axis=1).sum().reindex(columns=carriers).fillna(0.)
+    data.append(df[:num_snapshots].round(power_round).values.tolist())
+    
+with open(folder + 'generation.json', 'w') as fp:
+    fp.write("var generators = ")
+    json.dump(data,fp)
+
