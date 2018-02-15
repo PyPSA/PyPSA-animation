@@ -1,11 +1,5 @@
 
 
-// return range(len(array))
-function index(array) {
-    var result = [];
-    for(var i=0; i < array.length; i++) { result.push(i)}
-    return result
-}
 
 //Width and height
 var w = 800;
@@ -66,11 +60,11 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
     // add circles to svg
     bus_layer.selectAll("circle")
-	.data(index(buses.index)).enter()
+	.data(buses.index).enter()
 	.append("circle")
-	.attr("cx", function (i) { return projection([buses.x[i],buses.y[i]])[0] })
-	.attr("cy", function (i) { return projection([buses.x[i],buses.y[i]])[1] })
-	.attr("r", function (i) { return load[buses.index[i]][start_index]/load_scale  })
+	.attr("cx", function (d, i) { return projection([buses.x[i],buses.y[i]])[0] })
+	.attr("cy", function (d, i) { return projection([buses.x[i],buses.y[i]])[1] })
+	.attr("r", function (d, i) { return load[buses.index[i]][start_index]/load_scale  })
 	.attr("fill", "red");
 
     line_layer = svg.append("g");
@@ -81,12 +75,12 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .interpolate("linear");
 
     lines = line_layer.selectAll("path")
-	.data(index(links.index))
+	.data(links.index)
 	.enter()
 	.append("path")
-	.attr("d", function(i) { return lineFunction([projection([links.x0[i],links.y0[i]]),projection([links.x1[i],links.y1[i]])])})
+	.attr("d", function(d, i) { return lineFunction([projection([links.x0[i],links.y0[i]]),projection([links.x1[i],links.y1[i]])])})
         .attr("class", "flowline")
-        .attr("stroke-width", function(i) { return links.p_nom_opt[i]/link_scale});
+        .attr("stroke-width", function(d, i) { return flows[start_index][i]/link_scale});
 
 
 
@@ -103,8 +97,8 @@ d3.select("#timeslide").on("input", function() {
 function update(value) {
     document.getElementById("range").innerHTML=load.index[value];
     d3.selectAll("circle")
-	.attr("r", function (i) {return load[buses.index[i]][value]/load_scale  });
+	.attr("r", function (d, i) {return load[buses.index[i]][value]/load_scale  });
 
     line_layer.selectAll("path")
-        .attr("stroke-width", function(i) { return flows[value][i]/link_scale});
+        .attr("stroke-width", function(d, i) { return flows[value][i]/link_scale});
 }

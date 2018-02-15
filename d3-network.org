@@ -7,7 +7,7 @@
 
 * TODO
 
-** export generation data and flows
+** DONE export generation data and flows
 
 ** Represent directional flows
 
@@ -18,6 +18,8 @@ Either with animation OR with arrow
 https://bl.ocks.org/mbostock/3887235
 
 Pie chart - how to represent load??? red circle under (if gen > load); red circle over (if gen < load)
+
+What to do with storage
 
 ** Allow different scenarios to be loaded
 
