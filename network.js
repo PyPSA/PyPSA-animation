@@ -14,7 +14,7 @@ var h = 600;
 
 //Scale links
 var link_scale = 1000;
-var load_scale = 1000;
+var load_scale = 2000;
 
 
 
@@ -99,23 +99,23 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 
     // This is a function which transforms arc data into a path
-    var arc_path = d3.svg.arc()
+    arc_path = d3.svg.arc()
         .innerRadius(0)
         .outerRadius(40);
 
     // This is a function which turns a list of numbers into arc data (start angle, end angle,  etc.)
-    var pie = d3.layout.pie()
+    pie = d3.layout.pie()
 	.sort(null);
 
     //var carriers = ["gas", "onwind", "offwind", "solar"]
-    var colors = ["#835C3B","#3B6182","#ADD8E6","FFFF00"]
+    carrier_colors = ["#835C3B","#3B6182","#ADD8E6","FFFF00"]
 
     generators.selectAll("path")
         .data(function(d) {var array = pie(d[start_index]); for(var i=0; i < array.length; i++) { array[i]["radius"] = sum(d[start_index])}; return array})
         .enter()
         .append("path")
         .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
-        .style("fill", function(d, i) { return colors[i] });
+        .style("fill", function(d, i) { return carrier_colors[i] });
 
 
 
@@ -130,9 +130,19 @@ d3.select("#timeslide").on("input", function() {
 
 function update(value) {
     document.getElementById("range").innerHTML=load.index[value];
-    d3.selectAll("circle")
+
+    bus_layer.selectAll("circle")
 	.attr("r", function (d, i) {return load[buses.index[i]][value]/load_scale  });
 
     line_layer.selectAll("path")
         .attr("stroke-width", function(d, i) { return flows[value][i]/link_scale});
+
+    // don't need enter() and append() here...
+    generators.selectAll("path")
+        .data(function(d, i) {console.log(d,i); var array = pie(d[value]); for(var j=0; j < array.length; j++) { array[j]["radius"] = sum(d[value])}; return array})
+        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
+        .style("fill", function(d, i) { return carrier_colors[i] });
+
+
+
 }
