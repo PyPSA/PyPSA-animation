@@ -24,8 +24,8 @@ colors = {"OCGT" :"#835C3B",
           "solar" :"#FFFF00",
           "load": "#FF0000",
           "battery" : "#555555",
-          "H2" : "#0000FF",
-          "PHS" : "#40e0d0",
+          "H2" : "#FF00EE",
+          "PHS" : "#1dff00",
           "hydro" : "#008000",
           "ror" : "#90EE90",
           }
@@ -85,12 +85,10 @@ carriers["positive"] = generation_carriers.append(storage_carriers)
 carriers["negative"] = pd.Index(["load"]).append(storage_carriers)
 print(carriers)
 
-for sign in ["positive","negative"]:
-
-    with open(folder + sign + '-carriers.json', 'w') as fp:
-        fp.write("var {}_carriers = ".format(sign))
-        json.dump({"index" : list(carriers[sign]),
-                   "color" : [colors[c] for c in carriers[sign]]}, fp)
+with open(folder + 'carriers.json', 'w') as fp:
+        fp.write("var carriers = ")
+        json.dump({sign : {"index" : list(carriers[sign]),
+                   "color" : [colors[c] for c in carriers[sign]]} for sign in ["positive","negative"]}, fp)
 
 data = []
 
@@ -113,10 +111,8 @@ for ct in buses.index:
     data["positive"].append(pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)[:num_snapshots].round(power_round).values.tolist())
     data["negative"].append(pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)[:num_snapshots].round(power_round).values.tolist())
 
-for sign in ["positive","negative"]:
 
-    with open(folder + sign + '.json', 'w') as fp:
-        fp.write("var {} = ".format(sign))
-        json.dump(data[sign],fp)
-
+with open(folder + 'power.json', 'w') as fp:
+    fp.write("var power = ")
+    json.dump(data,fp)
 

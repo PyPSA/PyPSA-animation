@@ -62,17 +62,6 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.attr("fill", "rgba(8, 81, 156, 0.6)");
 
 
-    bus_layer = svg.append("g");
-
-    // add circles to svg
-    bus_layer.selectAll("circle")
-	.data(buses.index).enter()
-	.append("circle")
-	.attr("cx", function (d, i) { return projection([buses.x[i],buses.y[i]])[0] })
-	.attr("cy", function (d, i) { return projection([buses.x[i],buses.y[i]])[1] })
-	.attr("r", function (d, i) { return negative[i][start_snapshot_index][0]/load_scale  })
-	.attr("fill", negative_carriers.color[0]);
-
     line_layer = svg.append("g");
 
     var lineFunction = d3.svg.line()
@@ -89,15 +78,6 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .attr("stroke-width", function(d, i) { return flows[start_snapshot_index][i]/link_scale});
 
 
-    generator_layer = svg.append("g");
-
-    generators = generator_layer.selectAll("g")
-        .data(positive)
-        .enter()
-        .append("g")
-        .attr("transform", function(d,i) { return "translate(" + projection([buses.x[i],buses.y[i]])[0] +","+ projection([buses.x[i],buses.y[i]])[1] + ")" } );
-
-
     // This is a function which transforms arc data into a path
     arc_path = d3.svg.arc()
         .innerRadius(0)
@@ -107,14 +87,34 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
     pie = d3.layout.pie()
 	.sort(null);
 
-    generators.selectAll("path")
+    signs = ["positive","negative"];
+
+    sign_layer = {};
+
+    sign_locations = {};
+
+    for(var k=0; k < signs.length; k++) {
+
+	sign = signs[k];
+
+	sign_layer[sign] = svg.append("g");
+
+	sign_locations[sign] = sign_layer[sign].selectAll("g")
+            .data(power[sign])
+            .enter()
+            .append("g")
+            .attr("transform", function(d,i) { return "translate(" + projection([buses.x[i],buses.y[i]])[0] +","+ projection([buses.x[i],buses.y[i]])[1] + ")" } );
+
+
+
+    sign_locations[sign].selectAll("path")
         .data(function(d) {var array = pie(d[start_snapshot_index]); for(var i=0; i < array.length; i++) { array[i]["radius"] = sum(d[start_snapshot_index])}; return array})
         .enter()
         .append("path")
         .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
-        .style("fill", function(d, i) { return positive_carriers.color[i] });
+        .style("fill", function(d, i) { return carriers[sign].color[i] });
 
-
+    };
 
 });
 
@@ -128,18 +128,21 @@ d3.select("#timeslide").on("input", function() {
 function update(value) {
     document.getElementById("range").innerHTML=snapshots[value];
 
-    bus_layer.selectAll("circle")
-	.attr("r", function (d, i) {return negative[i][value][0]/load_scale  });
-
     line_layer.selectAll("path")
         .attr("stroke-width", function(d, i) { return flows[value][i]/link_scale});
 
-    // don't need enter() and append() here...
-    generators.selectAll("path")
+    for(var k=0; k < signs.length; k++) {
+
+	sign = signs[k];
+
+	console.log(sign,carriers[sign].color);
+
+	// don't need enter() and append() here...
+	sign_locations[sign].selectAll("path")
         .data(function(d, i) {var array = pie(d[value]); for(var j=0; j < array.length; j++) { array[j]["radius"] = sum(d[value])}; return array})
         .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
-        .style("fill", function(d, i) { return positive_carriers.color[i] });
+        .style("fill", function(d, i) { return carriers[sign].color[i] });
 
-
+    }
 
 }
