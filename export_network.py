@@ -1,15 +1,34 @@
 import pypsa, json
 
+import pandas as pd
+
+#%matplotlib inline
+
 network_name = "/home/tom/results/tom/snakemake/version-16/postnetworks/postnetwork-elec_only_opt.h5"
+
+network_name = "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.25_c0_base_diw2030_solar1_7_angles-2017-01-31-20-12-02/"
+
 n = pypsa.Network(network_name)
 
 coord_round = 3
 
 power_round = 0
 
-num_snapshots = 24
+num_snapshots = 168
 
 folder = "./"
+
+colors = {"OCGT" :"#835C3B",
+          "onwind":"#3B6182",
+          "offwind" :"#ADD8E6",
+          "solar" :"#FFFF00",
+          "load": "#FF0000",
+          "battery" : "#555555",
+          "H2" : "#0000FF",
+          "PHS" : "#40e0d0",
+          "hydro" : "#008000",
+          "ror" : "#90EE90",
+          }
 
 carrier = "AC"
 
@@ -44,25 +63,34 @@ with open(folder + 'links.json', 'w') as fp:
     fp.write("var links = ")
     json.dump(data, fp)
 
-data = {"index" : [str(i) for i in n.loads_t.p_set.index[:num_snapshots]]}
-
-for b in buses.index:
-    data[b] = list(n.loads_t.p_set[b][:num_snapshots].round(power_round))
-
-with open(folder + 'load-day.json', 'w') as fp:
-    fp.write("var load = ")
-    json.dump(data, fp)
-
-with open(folder + 'flow-day.json', 'w') as fp:
+with open(folder + 'flow.json', 'w') as fp:
     fp.write("var flows = ")
     json.dump(n.links_t.p0[links.index][:num_snapshots].round(power_round).values.tolist(),fp)
 
-carriers = n.carriers.index[:4]
+
+with open(folder + 'snapshots.json', 'w') as fp:
+    fp.write("var snapshots= ")
+    json.dump([str(i) for i in n.snapshots[:num_snapshots]], fp)
+
+generation_carriers = n.generators.carrier.value_counts().index
+generation_carriers
+
+storage_carriers = n.storage_units.carrier.value_counts().index
+storage_carriers
+
+carriers = {}
+
+carriers["positive"] = generation_carriers.append(storage_carriers)
+
+carriers["negative"] = pd.Index(["load"]).append(storage_carriers)
 print(carriers)
 
-with open(folder + 'carriers.json', 'w') as fp:
-    fp.write("var carriers = ")
-    json.dump(list(carriers), fp)
+for sign in ["positive","negative"]:
+
+    with open(folder + sign + '-carriers.json', 'w') as fp:
+        fp.write("var {}_carriers = ".format(sign))
+        json.dump({"index" : list(carriers[sign]),
+                   "color" : [colors[c] for c in carriers[sign]]}, fp)
 
 data = []
 
@@ -72,7 +100,23 @@ for ct in buses.index:
     df = n.generators_t.p.loc[:,n.generators.bus == ct].groupby(n.generators.carrier,axis=1).sum().reindex(columns=carriers).fillna(0.)
     data.append(df[:num_snapshots].round(power_round).values.tolist())
     
-with open(folder + 'generation.json', 'w') as fp:
-    fp.write("var generators = ")
-    json.dump(data,fp)
+
+data = {"positive" : [],
+        "negative" : []}
+for ct in buses.index:
+
+    storage = n.storage_units_t.p.loc[:,n.storage_units.bus == ct].groupby(n.storage_units.carrier,axis=1).sum().reindex(columns=storage_carriers).fillna(0.)
+    generation = n.generators_t.p.loc[:,n.generators.bus == ct].groupby(n.generators.carrier,axis=1).sum().reindex(columns=generation_carriers).fillna(0.)
+    load = n.loads_t.p_set.loc[:,n.loads.bus == ct].sum(axis=1)
+    load.name = "load"
+    
+    data["positive"].append(pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)[:num_snapshots].round(power_round).values.tolist())
+    data["negative"].append(pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)[:num_snapshots].round(power_round).values.tolist())
+
+for sign in ["positive","negative"]:
+
+    with open(folder + sign + '.json', 'w') as fp:
+        fp.write("var {} = ".format(sign))
+        json.dump(data[sign],fp)
+
 

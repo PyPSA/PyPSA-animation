@@ -1,4 +1,11 @@
 
+
+Need to start with
+
+python -m http.server 8888 &
+
+for non-server situation.
+
 * links
 
 [[~/geek/javascript.org]]  (tips and tech on d3js)
@@ -21,13 +28,31 @@ Pie chart - how to represent load??? red circle under (if gen > load); red circl
 
 What to do with storage
 
+have pie for BOTH load and generation, storage flipping between the two
+
+** Legend for generation, storage, load
+
+** Benefits paper first
+
+~/results/supplementary_data_benefits_of_cooperation/results$
+
+https://zenodo.org/record/804338
+
 ** Allow different scenarios to be loaded
 
 This will require more work...
 
+** Play button
+
+https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
+
+** Area not radius proportional to power
+
+** Zoom, bring down Scandinavia
+
 ** Parallel graph
 
-Either for whole of Europe or individual country
+Either for whole of Europe or individual country - drop-down menu to choose
 
 ** see per-country time series, total capacity and energy
 
