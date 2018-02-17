@@ -29,8 +29,8 @@ var h = 500;
 
 
 //Scale links
-var link_scale = 1000;
-var flow_scale = 10;
+var flow_scale = 1000;
+var power_scale = 10;
 
 
 
@@ -103,19 +103,19 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .attr("width",180)
         .attr("height",120);
 
-    legendSVG.append("circle").attr("cx",20).attr("cy",15).attr("r",5000**0.5/flow_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
+    legendSVG.append("circle").attr("cx",20).attr("cy",15).attr("r",5000**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
 
     legendSVG.append("text").attr("x",40).attr("y",20).text("5 GW");
 
-    legendSVG.append("circle").attr("cx",20).attr("cy",45).attr("r",25000**0.5/flow_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
+    legendSVG.append("circle").attr("cx",20).attr("cy",45).attr("r",25000**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
 
     legendSVG.append("text").attr("x",40).attr("y",50).text("25 GW");
 
-    legendSVG.append("rect").attr("x",0).attr("y",70).attr("width",30).attr("height",1000/link_scale).attr("fill","#999999");
+    legendSVG.append("rect").attr("x",0).attr("y",70).attr("width",30).attr("height",1000/flow_scale).attr("fill","#999999");
 
     legendSVG.append("text").attr("x",40).attr("y",80).text("1 GW flow");
 
-    legendSVG.append("rect").attr("x",0).attr("y",90).attr("width",30).attr("height",10000/link_scale).attr("fill","#999999");
+    legendSVG.append("rect").attr("x",0).attr("y",90).attr("width",30).attr("height",10000/flow_scale).attr("fill","#999999");
 
     legendSVG.append("text").attr("x",40).attr("y",100).text("10 GW flow");
 
@@ -136,7 +136,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .attr("id","lines");
 
 
-    var lineFunction = d3.svg.line()
+    lineFunction = d3.svg.line()
         .x(function(d) { return d[0] })
         .y(function(d) { return d[1] })
         .interpolate("linear");
@@ -145,9 +145,9 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.data(links.index)
 	.enter()
 	.append("path")
-	.attr("d", function(d, i) { return lineFunction([projection([links.x0[i],links.y0[i]]),projection([links.x1[i],links.y1[i]])])})
-        .attr("class", "flowline")
-        .attr("stroke-width", function(d, i) { return flows[snapshot_index][i]/link_scale});
+	.attr("d", function(d, i) {var from = 0; if(flows[snapshot_index][i] < 0){from = 1}; return lineFunction([projection([links["x" + from][i],links["y" + from][i]]),projection([links["x" + (1-from)][i],links["y" + (1-from)][i]])])})
+        .attr("class", "flowline-animated")
+        .attr("stroke-width", function(d, i) { return Math.abs(flows[snapshot_index][i])/flow_scale});
 
 
     // This is a function which transforms arc data into a path
@@ -183,7 +183,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
             .data(function(d) {return half_pie(d[snapshot_index], startAngle[sign])})
         .enter()
         .append("path")
-        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/flow_scale)(d)})
+        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
 	    .attr("class",sign)
         .style("fill", function(d, i) { return carriers[sign].color[i] });
 
@@ -200,10 +200,11 @@ d3.select("#timeslide").on("input", function() {
 
 function update(value) {
     snapshot_index = value;
-    document.getElementById("range").innerHTML=snapshots[value];
+    document.getElementById("range").innerHTML=snapshots[snapshot_index];
 
     line_layer.selectAll("path")
-        .attr("stroke-width", function(d, i) { return flows[value][i]/link_scale});
+	.attr("d", function(d, i) {var from = 0; if(flows[snapshot_index][i] < 0){from = 1}; return lineFunction([projection([links["x" + from][i],links["y" + from][i]]),projection([links["x" + (1-from)][i],links["y" + (1-from)][i]])])})
+        .attr("stroke-width", function(d, i) { return Math.abs(flows[snapshot_index][i])/flow_scale});
 
     for(var k=0; k < signs.length; k++) {
 
@@ -211,8 +212,8 @@ function update(value) {
 
 	// don't need enter() and append() here...
 	sign_locations[sign].selectAll("path")
-            .data(function(d) {return half_pie(d[value], startAngle[sign])})
-        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/flow_scale)(d)})
+            .data(function(d) {return half_pie(d[snapshot_index], startAngle[sign])})
+        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
         .style("fill", function(d, i) { return carriers[sign].color[i] });
     }
 }
@@ -242,7 +243,7 @@ playButton
 	    button.text("Pause");
 	}
 	console.log("Slider moving: " + moving);
-    })
+    });
 
 function step() {
 
@@ -259,3 +260,23 @@ function step() {
 	update(snapshot_index);
     }
 }
+
+
+
+
+var flowButton = d3.select("#flow-button");
+
+flowButton
+    .on("click", function() {
+	var button = d3.select(this);
+	if (button.text() == "Toggle flow animation: On") {
+	    line_layer.selectAll("path")
+		.attr("class", "flowline");
+	    button.text("Toggle flow animation: Off");
+	} else {
+	    line_layer.selectAll("path")
+	        .attr("class", "flowline-animated");
+	    button.text("Toggle flow animation: On");
+	}
+
+    });
