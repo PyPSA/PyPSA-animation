@@ -63,6 +63,8 @@ var files_to_load = ["snapshots","carriers","power","flow","buses","links"];
 
 var scenario = 4;
 
+var season = "winter";
+
 var network = {};
 
 var animate_flows = true;
@@ -71,7 +73,7 @@ var animate_flows = true;
 //recursively load files into network object
 //function after is executed at the end
 
-function load_data(scenario, after){
+function load_data(scenario, season, after){
 
     var k = 0;
 
@@ -82,7 +84,7 @@ function load_data(scenario, after){
 	    return;
 	}
 
-	var file_name = scenario + "/" + files_to_load[k] + ".json";
+	var file_name = scenario + "-" + season + "/" + files_to_load[k] + ".json";
 
 	d3.json(file_name, function(data){
 	    network[files_to_load[k]] = data;
@@ -253,7 +255,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 
 
-    load_data(scenario, display_data);
+    load_data(scenario, season, display_data);
 });
 
 
@@ -263,8 +265,18 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 d3.selectAll("input[name='scenario']").on("change", function(){
     scenario = this.value;
     console.log("scenario changed to", scenario);
-    load_data(scenario, display_data);
+    load_data(scenario, season, display_data);
 });
+
+
+// when the season changes, reload the data
+
+d3.selectAll("input[name='season']").on("change", function(){
+    season = this.value;
+    console.log("season changed to", season);
+    load_data(scenario, season, display_data);
+});
+
 
 
 // when the input range changes update the value

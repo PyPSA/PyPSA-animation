@@ -47,19 +47,34 @@
 	  code for the animations is also freely available at the
 	  github repository <a href="">PyPSA-animation</a>. Maps are made with <a href="http://www.naturalearthdata.com/">Natural Earth</a>.</p>
 
-	  <h3>Choose transmission scenario</h3>
+	  <div id="scenario">
+	  <h3>Choose cross-border transmission scenario</h3>
 	  <form id="scenario_selection">
 	      <input type="radio" name="scenario" value=0> No transmission (each country is self-sufficient in every hour)<br>
 	      <input type="radio" name="scenario" value=1> Transmission equivalent to today's capacities (but not necessarily in same place)<br>
+	      <input type="radio" name="scenario" value=2> 2x today's capacities<br>
 	      <input type="radio" name="scenario" value=4 checked> 4x today's capacities<br>
+	      <input type="radio" name="scenario" value=8> 8x today's capacities<br>
 	  </form>
+	  </div>
 
-	  <h3>Choose time</h3>
-	  <div id="sliderContainer">
+	  <div id="season">
+	  <h3>Choose season</h3>
+	  <form id="season_selection">
+	    <input type="radio" name="season" value="winter" checked> winter<br>
+	    <input type="radio" name="season" value="spring"> spring<br>
+	    <input type="radio" name="season" value="summer"> summer<br>
+	    <input type="radio" name="season" value="autumn"> autumn<br>
+	  </form>
+	  </div>
+
+	  <div id="time">
+	  <h3>Choose time of week</h3>
 	    <button id="play-button">Play</button>
 	    <input id="timeslide" type="range" min="0" max="23" value="0" step="1"/>
 	    <span id="range">0</span>
 	  </div>
+
 
 	  <div id="left">
 	    <h3>Generation and storage discharging (top half-pie)</h3>

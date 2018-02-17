@@ -140,15 +140,30 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
     with open(folder + 'power.json', 'w') as fp:
         json.dump(data,fp)
 
+seasons = {"winter" : "01",
+           "spring" : "04",
+           "summer" : "07",
+           "autumn" : "10",
+          }
+
+
 to_export = {0 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.0_c0_base_diw2030_solar1_7_angles-2017-01-31-20-12-02/",
              1 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.0625_c0_base_diw2030_solar1_7_angles-2017-02-13-18-51-06/",
-             4 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.25_c0_base_diw2030_solar1_7_angles-2017-01-31-20-12-02/"}
+             2 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.125_c0_base_diw2030_solar1_7-2017-01-31-20-10-10/",
+             4 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.25_c0_base_diw2030_solar1_7_angles-2017-01-31-20-12-02/",
+             8 : "/home/tom/results/supplementary_data_benefits_of_cooperation/results/diw2030-CO0-T1_8761-wWsgrpHb-LV0.5_c0_base_diw2030_solar1_7-2017-01-31-20-10-10/"}
 
              
 for k,v in to_export.items():
     n = pypsa.Network(v)
     
-    export_network_to_json(n,"./" + str(k) + "/",snapshots=n.snapshots[:168])
+    for season, month in seasons.items():
+        snapshots = n.snapshots[n.snapshots.slice_indexer("2011-" + month + "-01","2011-" + month + "-07")]
+
+        export_network_to_json(n,"./{}-{}/".format(k,season),snapshots=snapshots)
 
 
+n.generators_t.p.groupby(n.generators.carrier,axis=1).sum().sum()/n.loads_t.p_set.sum().sum()
+
+n.storage_units_t.p.groupby(n.storage_units.carrier,axis=1).sum().sum().sum()/n.loads_t.p_set.sum().sum()
 

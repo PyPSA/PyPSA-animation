@@ -48,9 +48,31 @@ h3 {
     width: 520px;
 }
 
+
+
+#scenario {
+    float: left;
+    width: 600px;
+    padding-right: 30px;
+}
+
+
+
+#season {
+    float: left;
+    width: 150px;
+}
+
+#time {
+    float: left;
+    width: 800px;
+}
+
+
 #timeslide {
     width: 500px;
 }
+
 
 .flowline {
     fill: none;
