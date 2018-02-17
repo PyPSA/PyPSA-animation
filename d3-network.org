@@ -16,7 +16,7 @@ for non-server situation.
 
 ** DONE export generation data and flows
 
-** Represent directional flows
+** DONE Represent directional flows
 
 Either with animation OR with arrow
 

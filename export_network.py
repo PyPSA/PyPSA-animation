@@ -23,12 +23,39 @@ colors = {"OCGT" :"#835C3B",
           "offwind" :"#ADD8E6",
           "solar" :"#FFFF00",
           "load": "#FF0000",
-          "battery" : "#555555",
+          "battery" : "#999999",
           "H2" : "#FF00EE",
           "PHS" : "#1dff00",
           "hydro" : "#008000",
           "ror" : "#90EE90",
           }
+
+def rename_techs(label):
+    if "H2" in label:
+        label = "hydrogen storage"
+    if label == "solar":
+        label = "solar PV"
+    if label == "offwind":
+        label = "offshore wind"
+    if label == "onwind":
+        label = "onshore wind"
+    if label == "ror":
+        label = "run-of-river"
+    if label == "hydro":
+        label = "hydro reservoir"
+    if label == "PHS":
+        label = "pumped hydro"
+    if "battery" in label:
+        label = "battery storage"
+    if label == "OCGT":
+        label = "gas OCGT"
+    return label
+
+#corrections to improve optics
+
+n.buses.loc["NO",["x","y"]] = [9.5,61.5]
+n.buses.loc["SE",["x","y"]] = [15,60.5]
+n.buses.at["FI","y"] = 62
 
 carrier = "AC"
 
@@ -72,10 +99,14 @@ with open(folder + 'snapshots.json', 'w') as fp:
     fp.write("var snapshots= ")
     json.dump([str(i) for i in n.snapshots[:num_snapshots]], fp)
 
+preferred_order = pd.Index(["offwind","onwind","solar","OCGT","ror","hydro","PHS","battery","H2"])
+
 generation_carriers = n.generators.carrier.value_counts().index
+generation_carriers = (preferred_order&generation_carriers).append(generation_carriers.difference(preferred_order))
 generation_carriers
 
 storage_carriers = n.storage_units.carrier.value_counts().index
+storage_carriers = (preferred_order&storage_carriers).append(storage_carriers.difference(preferred_order))
 storage_carriers
 
 carriers = {}
@@ -87,17 +118,8 @@ print(carriers)
 
 with open(folder + 'carriers.json', 'w') as fp:
         fp.write("var carriers = ")
-        json.dump({sign : {"index" : list(carriers[sign]),
+        json.dump({sign : {"index" : [rename_techs(c) for c in carriers[sign]],
                    "color" : [colors[c] for c in carriers[sign]]} for sign in ["positive","negative"]}, fp)
-
-data = []
-
-for ct in buses.index:
-    
-    #df of carrier * snapshots
-    df = n.generators_t.p.loc[:,n.generators.bus == ct].groupby(n.generators.carrier,axis=1).sum().reindex(columns=carriers).fillna(0.)
-    data.append(df[:num_snapshots].round(power_round).values.tolist())
-    
 
 data = {"positive" : [],
         "negative" : []}
@@ -115,4 +137,5 @@ for ct in buses.index:
 with open(folder + 'power.json', 'w') as fp:
     fp.write("var power = ")
     json.dump(data,fp)
+
 
