@@ -145,11 +145,12 @@ function display_data(){
         .attr("width",180)
         .attr("height",120);
 
-    legendSVG.append("circle").attr("cx",20).attr("cy",15).attr("r",5**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
+    //divide by 2 because only half of pie corresponds to total power
+    legendSVG.append("circle").attr("cx",20).attr("cy",15).attr("r",(5/2)**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
 
     legendSVG.append("text").attr("x",40).attr("y",20).text("5 GW");
 
-    legendSVG.append("circle").attr("cx",20).attr("cy",45).attr("r",25**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
+    legendSVG.append("circle").attr("cx",20).attr("cy",45).attr("r",(25/2)**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
 
     legendSVG.append("text").attr("x",40).attr("y",50).text("25 GW");
 
