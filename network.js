@@ -8,13 +8,13 @@ function sum(array){
 
 
 //Width and height
-var w = 800;
-var h = 600;
+var w = 500;
+var h = 500;
 
 
 //Scale links
 var link_scale = 1000;
-var load_scale = 2000;
+var power_scale = 10;
 
 
 
@@ -24,9 +24,9 @@ var start_snapshot_index = 4;
 //Define map projection
 
 var projection = d3.geo.mercator() //utiliser une projection standard pour aplatir les pôles, voir D3 projection plugin
-    .center([ 13, 52 ]) //comment centrer la carte, longitude, latitude
+    .center([ 9.3, 52 ]) //comment centrer la carte, longitude, latitude
     .translate([ w/2, h/2 ]) // centrer l'image obtenue dans le svg
-    .scale([ w/1.5 ]); // zoom, plus la valeur est petit plus le zoom est gros
+    .scale([ w/0.68]); // zoom, plus la valeur est petit plus le zoom est gros
 
 //Define path generator
 var path = d3.geo.path()
@@ -50,7 +50,8 @@ var svg = d3.select("#container")
 d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 
-    countries = svg.append("g");
+    countries = svg.append("g")
+        .attr("id","countries");
 
     //Bind data and create one path per GeoJSON feature
     countries.selectAll("path")
@@ -62,7 +63,9 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.attr("fill", "rgba(8, 81, 156, 0.6)");
 
 
-    line_layer = svg.append("g");
+    line_layer = svg.append("g")
+        .attr("id","lines");
+
 
     var lineFunction = d3.svg.line()
         .x(function(d) { return d[0] })
@@ -80,8 +83,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
     // This is a function which transforms arc data into a path
     arc_path = d3.svg.arc()
-        .innerRadius(0)
-        .outerRadius(40);
+        .innerRadius(0);
 
     // This is a function which turns a list of numbers into arc data (start angle, end angle,  etc.)
     pie = d3.layout.pie()
@@ -97,7 +99,8 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 	sign = signs[k];
 
-	sign_layer[sign] = svg.append("g");
+	sign_layer[sign] = svg.append("g").attr("id",sign);
+
 
 	sign_locations[sign] = sign_layer[sign].selectAll("g")
             .data(power[sign])
@@ -111,7 +114,8 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
         .data(function(d) {var array = pie(d[start_snapshot_index]); for(var i=0; i < array.length; i++) { array[i]["radius"] = sum(d[start_snapshot_index])}; return array})
         .enter()
         .append("path")
-        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
+        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]**0.5/power_scale)(d)})
+	    .attr("class",sign)
         .style("fill", function(d, i) { return carriers[sign].color[i] });
 
     };
@@ -140,7 +144,7 @@ function update(value) {
 	// don't need enter() and append() here...
 	sign_locations[sign].selectAll("path")
         .data(function(d, i) {var array = pie(d[value]); for(var j=0; j < array.length; j++) { array[j]["radius"] = sum(d[value])}; return array})
-        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]/load_scale)(d)})
+        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]**0.5/power_scale)(d)})
         .style("fill", function(d, i) { return carriers[sign].color[i] });
 
     }

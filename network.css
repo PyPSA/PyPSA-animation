@@ -23,11 +23,6 @@ h1 {
     box-shadow: 1px 1px 1px 2px rgb(217, 217, 217);
 }
 
-path:hover {
-    fill: rgba(8, 81, 156, 0.2);
-    cursor:pointer;
-}
-
 .flowline {
     fill: none;
     stroke: black;
@@ -36,6 +31,11 @@ path:hover {
 /*    animation: flow 1s linear infinite; */
 /*    -webkit-animation: flow 1s linear infinite;  */
 }
+
+.negative {
+    fill-opacity : 0.8;
+}
+
 
 @keyframes flow {
     from {

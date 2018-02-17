@@ -20,7 +20,7 @@ for non-server situation.
 
 Either with animation OR with arrow
 
-** Represent generation at each node
+** DONE Represent generation at each node
 
 https://bl.ocks.org/mbostock/3887235
 
@@ -29,6 +29,12 @@ Pie chart - how to represent load??? red circle under (if gen > load); red circl
 What to do with storage
 
 have pie for BOTH load and generation, storage flipping between the two
+
+** DONE make load transparent?
+
+flipping z-order not supported in SVG, only in CSS
+
+SVG paints in order of SVG
 
 ** Legend for generation, storage, load
 
@@ -46,9 +52,9 @@ This will require more work...
 
 https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
 
-** Area not radius proportional to power
+** DONE Area not radius proportional to power
 
-** Zoom, bring down Scandinavia
+** DONE Zoom, bring down Scandinavia
 
 ** Parallel graph
 
@@ -65,3 +71,18 @@ e.g. user from Ireland can see how each country deals with down periods with and
 
 
 why doesn't Chrome crash with tmrow.co wind animation??? If not, should be able to deal with network flows
+
+
+** Text
+
+Copyright Natural Earth
+
+Link to paper, zenodo
+
+Link to pypsa home
+
+AGPL
+
+Link to github PyPSA_animation?
+
+** Make into library?
