@@ -36,7 +36,7 @@ flipping z-order not supported in SVG, only in CSS
 
 SVG paints in order of SVG
 
-** Legend for generation, storage, load
+** DONE Legend for generation, storage, load
 
 ** Benefits paper first
 

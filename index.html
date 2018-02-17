@@ -18,13 +18,22 @@
 
 
 	<div id="container">
-		<h1>Electrical demand: change the hour with the slider</h1>
-		<div id="sliderContainer">
-		  <button id="play-button">Play</button>
-		  <input id="timeslide" type="range" min="0" max="23" value="0" step="1"/>
-		  <span id="range">0</span>
-    </div>
+	  <h1>Electrical demand: change the hour with the slider</h1>
+	  <div id="sliderContainer">
+	    <button id="play-button">Play</button>
+	    <input id="timeslide" type="range" min="0" max="23" value="0" step="1"/>
+	    <span id="range">0</span>
+	  </div>
 
+	  <div id="left">
+	    <h3>Generation and storage discharging (top half-pie)</h3>
+	    <div id="legend-positive"></div>
+	    <h3>Load and Storage Charging (bottom half-pie)</h3>
+	    <div id="legend-negative"></div>
+	  </div>
+
+	  <div id="right">
+	  </div>
 	</div>
 		<script src="network.js"></script>
 

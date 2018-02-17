@@ -18,9 +18,33 @@ h1 {
     margin-left: auto;
     margin-right: auto;
     margin-top: 20px;
-    padding: 20px;
+    padding: 10px;
     background-color: white;
     box-shadow: 1px 1px 1px 2px rgb(217, 217, 217);
+}
+
+/* Clear floats after the columns */
+#container:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+#left {
+    float: left;
+    width: 270px;
+}
+
+
+
+#right {
+    float: left;
+    width: 520px;
+}
+
+#timeslide {
+    width: 300px;
 }
 
 .flowline {

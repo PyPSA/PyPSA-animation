@@ -60,14 +60,48 @@ document.getElementById("range").innerHTML=snapshots[snapshot_index];
 
 
 //Create SVG
-var svg = d3.select("#container")
+var svg = d3.select("#right")
     .append("svg")
     .attr("width", w)
     .attr("height", h);
 
+var signs = ["positive","negative"];
+
+
+
+
 //Load in GeoJSON data
 d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
+
+
+
+    //Legend
+    for(var k=0; k < signs.length; k++) {
+	var sign=signs[k];
+	var legendSVG = d3.select("#legend-" + sign)
+	    .append("svg")
+	    .attr("width",180)
+	    .attr("height",carriers[sign].index.length*20);
+
+	var legend = legendSVG.selectAll("g")
+	    .data(carriers[sign].index)
+	    .enter()
+	    .append("g")
+	    .attr("transform", function (d, i) {  return "translate(0," + (5 + i * 20) + ")" });
+
+	legend.append("rect")
+	    .attr("x",0)
+	    .attr("y",0)
+	    .attr("width", 10)
+	    .attr("height", 10)
+	    .style("fill", function (d, i) { return carriers[sign].color[i] });
+
+	legend.append("text")
+	    .attr("x",20)
+	    .attr("y",10)
+	    .text(function (d) { return d});
+    }
 
     countries = svg.append("g")
         .attr("id","countries");
@@ -107,8 +141,6 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
     // This is a function which turns a list of numbers into arc data (start angle, end angle,  etc.)
     pie = d3.layout.pie()
 	.sort(null);
-
-    signs = ["positive","negative"];
 
     startAngle = {"positive" : -Math.PI/2, "negative" : Math.PI/2};
 
