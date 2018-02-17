@@ -37,6 +37,9 @@ var power_scale = 10;
 //Index at start
 var start_snapshot_index = 4;
 
+//Keep track of index
+var snapshot_index = start_snapshot_index;
+
 //Define map projection
 
 var projection = d3.geo.mercator() //utiliser une projection standard pour aplatir les pôles, voir D3 projection plugin
@@ -51,9 +54,9 @@ var path = d3.geo.path()
 
 document.getElementById("timeslide").max=snapshots.length-1;
 
-document.getElementById("timeslide").value = start_snapshot_index;
+document.getElementById("timeslide").value = snapshot_index;
 
-document.getElementById("range").innerHTML=snapshots[start_snapshot_index];
+document.getElementById("range").innerHTML=snapshots[snapshot_index];
 
 
 //Create SVG
@@ -148,6 +151,7 @@ d3.select("#timeslide").on("input", function() {
 
 
 function update(value) {
+    snapshot_index = value;
     document.getElementById("range").innerHTML=snapshots[value];
 
     line_layer.selectAll("path")
@@ -162,5 +166,48 @@ function update(value) {
             .data(function(d) {return half_pie(d[value], startAngle[sign])})
         .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
         .style("fill", function(d, i) { return carriers[sign].color[i] });
+    }
+}
+
+
+
+// Inspired by https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
+var playButton = d3.select("#play-button");
+
+var moving = false;
+
+playButton
+    .on("click", function() {
+	var button = d3.select(this);
+	if (button.text() == "Pause") {
+	    moving = false;
+	    clearInterval(timer);
+	    // timer = 0;
+	    button.text("Play");
+	} else {
+	    if(snapshot_index == snapshots.length-1){
+		snapshot_index = -1;
+	    }
+	    moving = true;
+	    // execute step every 100ms
+	    timer = setInterval(step, 100);
+	    button.text("Pause");
+	}
+	console.log("Slider moving: " + moving);
+    })
+
+function step() {
+
+    if(snapshot_index == snapshots.length-1){
+	moving = false;
+	clearInterval(timer);
+	// timer = 0;
+	playButton.text("Play");
+	console.log("Slider moving: " + moving);
+    }
+    else{
+	snapshot_index += 1;
+	document.getElementById("timeslide").value = snapshot_index;
+	update(snapshot_index);
     }
 }

@@ -48,7 +48,15 @@ https://zenodo.org/record/804338
 
 This will require more work...
 
-** Play button
+load_json{
+  load_csvs(scenario){
+    initial_graphic(){
+    }
+  }
+}
+
+
+** DONE Play button
 
 https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
 
@@ -83,7 +91,7 @@ Link to pypsa home
 
 AGPL
 
-Link to github PyPSA_animation?
+Link to github pypsa-animation
 
 ** Make export_network into a library
 
