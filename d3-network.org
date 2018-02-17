@@ -68,7 +68,7 @@ https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
 
 Either for whole of Europe or individual country - drop-down menu to choose
 
-** see per-country time series, total capacity and energy
+** see per-country time series, total capacity and energy and cost
 
 also per scenario settings
 
@@ -103,8 +103,8 @@ Link to github pypsa-animation
 
 ** Shrink Natural Earth file?
 
-** Set up github account
+** Set up github repo pypsa-animation
 
 With AGPL licence, README
 
-Link to and from pypsa/animation/pypsa-eur-30.html
+Link to and from pypsa.org/animations/pypsa-eur-30/index.html

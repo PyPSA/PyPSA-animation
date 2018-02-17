@@ -18,17 +18,21 @@
 	  <p>In these scenarios 95% of today's electricity demand in Europe is
 	  covered with renewable energy. This corresponds to a
 	  reduction of carbon dioxide emissions in the electricity
-	  sector by 95% compared to Europe's 1990 electricity emissions. In
-	  each scenario, different volumes of cross-border transmission are
-	  allowed, which help to balance wind and solar across the continent.</p>
+	    sector by 95% compared to Europe's 1990 electricity emissions.</p>
 
-	  <p>For each country the breakdown of electricity producers
+	  <p>In each scenario, different volumes of cross-border
+	  transmission are built. Transmission helps to balance wind
+	  and solar across the continent. With less transmission, more
+	  storage must be built to balance variable renewables in
+	  time instead.</p>
+
+	  <p>For each country the breakdown of electricity suppliers
 	  is shown in the top half-pie-chart (i.e. all generators and
 	  discharging storage), while the breakdown of electricity
 	  consumers is shown in the bottom half-pie-chart (i.e. all
 	  electrical demand and charging storage). If the
 	  half-pie-charts have the same radius, than supply exactly
-	  balances demand at the node; if the producer half-pie is
+	  balances demand at the node; if the supply half-pie is
 	  bigger, then the country has to export its excess
 	  electricity; if the consumer half-pie is bigger, then the
 	  country has to import electricity.</p>
@@ -37,7 +41,7 @@
 	  paper <a href="https://doi.org/10.1016/j.energy.2017.06.004">The
 	  benefits of cooperation in a highly renewable European
 	  electricity network</a>
-	  (free-to-download <a href="https://arxiv.org/abs/1704.05492">postprint</a>). The
+	  (free-to-download: <a href="https://arxiv.org/abs/1704.05492">postprint</a>). The
 	  full datasets (input data, code, output for every hour of
 	  the weather year 2011)
 	  are <a href="https://doi.org/10.5281/zenodo.804337">freely
@@ -45,15 +49,17 @@
 	  free
 	  software <a href="https://www.pypsa.org/">PyPSA</a>. The
 	  code for the animations is also freely available at the
-	  github repository <a href="">PyPSA-animation</a>. Maps are made with <a href="http://www.naturalearthdata.com/">Natural Earth</a>.</p>
+	  github repository <a href="https://github.com/PyPSA/PyPSA-animation">PyPSA-animation</a>. Maps are made with <a href="http://www.naturalearthdata.com/">Natural Earth</a>.</p>
+
+	  <h3>WARNING: Data can take several seconds to load, please be patient</h3>
 
 	  <div id="scenario">
 	  <h3>Choose cross-border transmission scenario</h3>
 	  <form id="scenario_selection">
 	      <input type="radio" name="scenario" value=0> No transmission (each country is self-sufficient in every hour)<br>
 	      <input type="radio" name="scenario" value=1> Transmission equivalent to today's capacities (but not necessarily in same place)<br>
-	      <input type="radio" name="scenario" value=2> 2x today's capacities<br>
-	      <input type="radio" name="scenario" value=4 checked> 4x today's capacities<br>
+	      <input type="radio" name="scenario" value=2 checked> 2x today's capacities<br>
+	      <input type="radio" name="scenario" value=4> 4x today's capacities<br>
 	      <input type="radio" name="scenario" value=8> 8x today's capacities<br>
 	  </form>
 	  </div>
@@ -77,16 +83,16 @@
 
 
 	  <div id="left">
-	    <h3>Generation and storage discharging (top half-pie)</h3>
+	    <h3>Suppliers (top half-pie)</h3>
 	    <div id="legend-positive"></div>
-	    <h3>Load and Storage Charging (bottom half-pie)</h3>
+	    <h3>Consumers (bottom half-pie)</h3>
 	    <div id="legend-negative"></div>
 	    <h3>Scale</h3>
 	    <div id="legend-scale"></div>
 	  </div>
 
 	  <div id="right">
-	    <button id="flow-button">Toggle flow animation: On</button> (flow animation can be CPU intensive)
+	    <button id="flow-button">Toggle flow animation: On</button> (only Firefox/Chrome; can be CPU intensive)
 	  </div>
 	  <svg width="800" height="500" id="graph"></svg>
 	</div>

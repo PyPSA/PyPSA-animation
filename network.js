@@ -61,7 +61,7 @@ var signs = ["positive","negative"];
 
 var files_to_load = ["snapshots","carriers","power","flow","buses","links"];
 
-var scenario = 4;
+var scenario = 2;
 
 var season = "winter";
 
