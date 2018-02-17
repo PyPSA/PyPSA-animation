@@ -44,7 +44,7 @@ SVG paints in order of SVG
 
 https://zenodo.org/record/804338
 
-** Allow different scenarios OR time periods to be loaded
+** DONE Allow different scenarios OR time periods to be loaded
 
 This will require more work...
 
@@ -95,8 +95,10 @@ AGPL
 
 Link to github pypsa-animation
 
-** Make export_network into a library
+** DONE Make export_network into a library
 
-** Use selection of snapshots rather than num_snapshots
+** DONE Use selection of snapshots rather than num_snapshots
+
+** Load different seasons
 
 ** Shrink Natural Earth file?

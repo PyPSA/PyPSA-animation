@@ -5,12 +5,6 @@
 		<title>PyPSA visualisation</title>
 		<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="//d3js.org/topojson.v1.min.js"></script>
-		<script src="buses.json"></script>
-		<script src="flow.json"></script>
-		<script src="snapshots.json"></script>
-		<script src="links.json"></script>
-		<script src="carriers.json"></script>
-		<script src="power.json"></script>
 		<link rel="stylesheet" type="text/css" href="network.css" />
 
 	</head>
@@ -19,6 +13,15 @@
 
 	<div id="container">
 	  <h1>Electrical demand: change the hour with the slider</h1>
+
+	  <h3>Choose transmission scenario</h3>
+	  <form id="scenario_selection">
+	      <input type="radio" name="scenario" value=0> No transmission<br>
+	      <input type="radio" name="scenario" value=1> Transmission equivalent to today's capacities (NTCs, but not in same place)<br>
+	      <input type="radio" name="scenario" value=4 checked> 4x today's capacities<br>
+	  </form>
+
+	  <h3>Choose time</h3>
 	  <div id="sliderContainer">
 	    <button id="play-button">Play</button>
 	    <input id="timeslide" type="range" min="0" max="23" value="0" step="1"/>
@@ -37,7 +40,9 @@
 	  <div id="right">
 	    <button id="flow-button">Toggle flow animation: On</button> (flow animation can be CPU intensive)
 	  </div>
+	  <svg width="800" height="500" id="graph"></svg>
 	</div>
+
 		<script src="network.js"></script>
 
 	</body>
