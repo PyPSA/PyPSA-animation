@@ -85,4 +85,8 @@ AGPL
 
 Link to github PyPSA_animation?
 
-** Make into library?
+** Make export_network into a library
+
+** Use selection of snapshots rather than num_snapshots
+
+** Shrink Natural Earth file?

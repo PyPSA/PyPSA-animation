@@ -7,6 +7,22 @@ function sum(array){
 }
 
 
+function half_pie(array, startAngle){
+    var total = sum(array);
+    var result = [];
+    var angle = startAngle;
+    for(var i=0; i < array.length; i++) {
+	item = {};
+	item["total"] = total;
+	item["startAngle"] = angle;
+	item["endAngle"] = angle + Math.PI*array[i]/total;
+	angle = item["endAngle"];
+	result.push(item);
+    }
+    return result;
+}
+
+
 //Width and height
 var w = 500;
 var h = 500;
@@ -60,7 +76,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.append("path")
 	.attr("d", path)
 	.attr("stroke", "rgba(8, 81, 156, 0.2)")
-	.attr("fill", "rgba(8, 81, 156, 0.6)");
+	.attr("fill", "rgba(8, 81, 156, 0.01)");
 
 
     line_layer = svg.append("g")
@@ -91,6 +107,8 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
     signs = ["positive","negative"];
 
+    startAngle = {"positive" : -Math.PI/2, "negative" : Math.PI/2};
+
     sign_layer = {};
 
     sign_locations = {};
@@ -111,10 +129,10 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 
 
     sign_locations[sign].selectAll("path")
-        .data(function(d) {var array = pie(d[start_snapshot_index]); for(var i=0; i < array.length; i++) { array[i]["radius"] = sum(d[start_snapshot_index])}; return array})
+            .data(function(d) {return half_pie(d[start_snapshot_index], startAngle[sign])})
         .enter()
         .append("path")
-        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]**0.5/power_scale)(d)})
+        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
 	    .attr("class",sign)
         .style("fill", function(d, i) { return carriers[sign].color[i] });
 
@@ -139,14 +157,10 @@ function update(value) {
 
 	sign = signs[k];
 
-	console.log(sign,carriers[sign].color);
-
 	// don't need enter() and append() here...
 	sign_locations[sign].selectAll("path")
-        .data(function(d, i) {var array = pie(d[value]); for(var j=0; j < array.length; j++) { array[j]["radius"] = sum(d[value])}; return array})
-        .attr("d", function(d) { return arc_path.outerRadius(d["radius"]**0.5/power_scale)(d)})
+            .data(function(d) {return half_pie(d[value], startAngle[sign])})
+        .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
         .style("fill", function(d, i) { return carriers[sign].color[i] });
-
     }
-
 }
