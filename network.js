@@ -313,8 +313,8 @@ playButton
 		snapshot_index = -1;
 	    }
 	    moving = true;
-	    // execute step every 100ms
-	    timer = setInterval(step, 100);
+	    // execute step every 200ms
+	    timer = setInterval(step, 200);
 	    button.text("Pause");
 	}
 	console.log("Slider moving: " + moving);
