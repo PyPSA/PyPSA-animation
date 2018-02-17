@@ -65,6 +65,8 @@ var scenario = 4;
 
 var network = {};
 
+var animate_flows = true;
+
 
 //recursively load files into network object
 //function after is executed at the end
@@ -172,12 +174,19 @@ function display_data(){
         .y(function(d) { return d[1] })
         .interpolate("linear");
 
+    if(animate_flows){
+	var cls = "flowline-animated";
+    }
+    else{
+	var cls = "flowline";
+    }
+
     lines = line_layer.selectAll("path")
 	.data(network.links.index)
 	.enter()
 	.append("path")
 	.attr("d", function(d, i) {var from = 0; if(network.flow[snapshot_index][i] < 0){from = 1}; return lineFunction([projection([network.links["x" + from][i],network.links["y" + from][i]]),projection([network.links["x" + (1-from)][i],network.links["y" + (1-from)][i]])])})
-        .attr("class", "flowline-animated")
+        .attr("class", cls)
         .attr("stroke-width", function(d, i) { return Math.abs(network.flow[snapshot_index][i])/flow_scale});
 
 
@@ -335,10 +344,12 @@ flowButton
     .on("click", function() {
 	var button = d3.select(this);
 	if (button.text() == "Toggle flow animation: On") {
+	    animate_flows = false;
 	    line_layer.selectAll("path")
 		.attr("class", "flowline");
 	    button.text("Toggle flow animation: Off");
 	} else {
+	    animate_flows = true;
 	    line_layer.selectAll("path")
 	        .attr("class", "flowline-animated");
 	    button.text("Toggle flow animation: On");
