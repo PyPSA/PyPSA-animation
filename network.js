@@ -55,15 +55,19 @@ var animation_interval = 150;
 //Current snapshot index; value sets start point
 var snapshot_index = 0;
 
+
+var country_index = 4;
+
+
 //Define map projection
 
-var projection = d3.geo.mercator() //utiliser une projection standard pour aplatir les pôles, voir D3 projection plugin
+var projection = d3.geoMercator() //utiliser une projection standard pour aplatir les pôles, voir D3 projection plugin
     .center([ 9.3, 52 ]) //comment centrer la carte, longitude, latitude
     .translate([ w/2, h/2 ]) // centrer l'image obtenue dans le svg
     .scale([ w/0.68]); // zoom, plus la valeur est petit plus le zoom est gros
 
 //Define path generator
-var path = d3.geo.path()
+var path = d3.geoPath()
     .projection(projection);
 
 
@@ -190,10 +194,10 @@ function display_data(){
         .attr("id","lines");
 
 
-    lineFunction = d3.svg.line()
+    lineFunction = d3.line()
         .x(function(d) { return d[0] })
         .y(function(d) { return d[1] })
-        .interpolate("linear");
+        .curve(d3.curveLinear);
 
     if(animate_flows){
 	var cls = "flowline-animated";
@@ -212,12 +216,8 @@ function display_data(){
 
 
     // This is a function which transforms arc data into a path
-    arc_path = d3.svg.arc()
+    arc_path = d3.arc()
         .innerRadius(0);
-
-    // This is a function which turns a list of numbers into arc data (start angle, end angle,  etc.)
-    pie = d3.layout.pie()
-	.sort(null);
 
     startAngle = {"positive" : -Math.PI/2, "negative" : Math.PI/2};
 
@@ -252,8 +252,90 @@ function display_data(){
         .style("fill", function(d, i) { return network.carriers[sign].color[i] });
 
     };
+
+    draw_graphs();
 }
 
+
+function draw_graphs(){
+
+    // Inspired by https://bl.ocks.org/mbostock/3885211
+
+    var svgGraph = d3.select("#graph"),
+	margin = {top: 20, right: 20, bottom: 30, left: 50},
+	width = svgGraph.attr("width") - margin.left - margin.right,
+	height = svgGraph.attr("height") - margin.top - margin.bottom;
+
+    var parseDate = d3.timeParse("%Y-%m-%d %H:%M:00");
+
+    var x = d3.scaleTime().range([0, width]),
+	y = d3.scaleLinear().range([height, 0]);
+
+    data = [];
+
+    // Custom version of d3.stack
+
+    var previous = new Array(network.snapshots.length).fill(0);
+
+    for (var j = 0; j < network.carriers["positive"].index.length; j++){
+	var item = [];
+	for (var k = 0; k < network.snapshots.length; k++){
+	    item.push([previous[k], previous[k] + network.power["positive"][country_index][k][j]]);
+	    previous[k] = previous[k] + network.power["positive"][country_index][k][j];
+	    }
+	data.push(item);
+    }
+
+    var previous = new Array(network.snapshots.length).fill(0);
+
+    for (var j = 0; j < network.carriers["negative"].index.length; j++){
+	var item = [];
+	for (var k = 0; k < network.snapshots.length; k++){
+	    item.push([-previous[k] -network.power["negative"][country_index][k][j],-previous[k]]);
+	    previous[k] = previous[k] + network.power["negative"][country_index][k][j];
+	    }
+	data.push(item);
+    }
+
+
+    var ymin = 0, ymax = 0;
+    for (var k = 0; k < network.snapshots.length; k++){
+	if(data[network.carriers["positive"].index.length-1][k][1] > ymax){ ymax = data[network.carriers["positive"].index.length-1][k][1];};
+	if(data[network.carriers["positive"].index.length+network.carriers["negative"].index.length-1][k][0] < ymin){ ymin = data[network.carriers["positive"].index.length+network.carriers["negative"].index.length-1][k][0];};
+    };
+
+    var area = d3.area()
+        .x(function(d, i) { return x(parseDate(network.snapshots[i])); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); });
+
+
+    var g = svgGraph.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    x.domain(d3.extent(network.snapshots, function(d) { return parseDate(d); }));
+    y.domain([ymin,ymax]);
+
+    var layer = g.selectAll(".layer")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "layer");
+
+    layer.append("path")
+        .attr("class", "area")
+        .style("fill", function(d, i) {if(i < network.carriers["positive"].color.length){ return network.carriers["positive"].color[i];} else{return network.carriers["negative"].color[i-network.carriers["positive"].color.length];} })
+        .attr("d", area);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(y));
+}
 
 
 //Load in GeoJSON data
