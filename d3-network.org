@@ -10,7 +10,96 @@ for non-server situation.
 
 [[~/geek/javascript.org]]  (tips and tech on d3js)
 
-[[~/energy/fias-private.org]] (comparison with other websites)
+** Old notes
+
+*** Examples of nice visualisations
+
+**** IWES KWK2
+
+From Fraunhofer IWES for Germany:
+
+http://www.kombikraftwerk.de/kombikraftwerk-2/100-ee-szenario/leistungsflussanimation.html
+
+http://www.kombikraftwerk.de/typo3conf/ext/aee_animation/Resources/Public/JavaScript/animation.js?1402997953
+
+pie charts for RE; load is circle within/out
+
+Line width corresponds to flow (no directionality)
+
+graph above and below line
+
+
+tech: d3.js and jQuery
+
+
+
+**** Greening the Grid India NREL
+
+From NREL for India:
+
+https://maps.nrel.gov/IndiaGTG/
+
+has sun passing over India
+
+dots for each tech
+
+separate graph with moving flow for lines
+
+moving sun over stuff
+
+fills whole screen
+
+tech: jQuery, custom stuff??
+
+**** tmrow.co CO2 map
+
+https://github.com/tmrowco/electricitymap
+
+**** US Electric system operating data
+
+https://www.eia.gov/beta/realtime_grid/#/status?end=20171107T01
+
+
+**** Lappeenranta LUT
+
+http://www.neocarbonenergy.fi/internetofenergy/#
+
+Has visualisations over time for each region
+
+
+graph up and down
+
+pie charts and flow
+
+
+*** Tools for visualisations
+
+**** plotly
+
+do animation over time?
+
+**** bokeh
+
+**** d3js
+
+https://stackoverflow.com/questions/12592730/how-to-animate-and-play-over-time-in-d3-js
+
+**** deck.gl
+
+From Uber, uses webGL
+
+https://uber.github.io/deck.gl/#/examples/overview
+
+
+**** superset
+
+From Airbnb, more of a dashboard
+
+https://github.com/apache/incubator-superset
+
+
+
+
 
 * TODO
 
@@ -103,7 +192,9 @@ Link to github pypsa-animation
 
 ** Shrink Natural Earth file?
 
-** Set up github repo pypsa-animation
+https://gist.github.com/MariellaCC/8dea97c0f61429d1b72a
+
+** DONE Set up github repo pypsa-animation
 
 With AGPL licence, README
 

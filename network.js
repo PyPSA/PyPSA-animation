@@ -1,4 +1,20 @@
 
+// Copyright 2018 Tom Brown
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation; either version 3 of the
+// License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+
+// License and more information at:
+// https://github.com/PyPSA/PyPSA-animation
+
+
 
 function sum(array){
     var total = 0;
@@ -32,6 +48,8 @@ var h = 500;
 var flow_scale = 1;
 var power_scale = 0.3;
 
+//interval for animation update in milliseconds
+var animation_interval = 150;
 
 
 //Current snapshot index; value sets start point
@@ -325,8 +343,7 @@ playButton
 		snapshot_index = -1;
 	    }
 	    moving = true;
-	    // execute step every 200ms
-	    timer = setInterval(step, 200);
+	    timer = setInterval(step, animation_interval);
 	    button.text("Pause");
 	}
 	console.log("Slider moving: " + moving);
