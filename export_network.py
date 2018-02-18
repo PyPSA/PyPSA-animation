@@ -1,17 +1,17 @@
-## Copyright 2018 Tom Brown                                                                                                                           
+## Copyright 2018 Tom Brown
 
-## This program is free software; you can redistribute it and/or                                                                                      
-## modify it under the terms of the GNU Affero General Public License as                                                                              
-## published by the Free Software Foundation; either version 3 of the                                                                                 
-## License, or (at your option) any later version.                                                                                                    
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU Affero General Public License as
+## published by the Free Software Foundation; either version 3 of the
+## License, or (at your option) any later version.
 
-## This program is distributed in the hope that it will be useful,                                                                                    
-## but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                     
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                      
-## GNU Affero General Public License for more details.                                                                                                
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU Affero General Public License for more details.
 
-## License and more information at:                                                                                                                   
-## https://github.com/PyPSA/PyPSA-animation 
+## License and more information at:
+## https://github.com/PyPSA/PyPSA-animation
 
 import pypsa, json, os
 
@@ -54,6 +54,54 @@ def rename_techs(label):
         label = "gas OCGT"
     return label
 
+country_to_code = {
+'Europe' : 'EU',
+'EA19' : 'EA',
+'Belgium' : 'BE',
+'Bulgaria' : 'BG',
+'Czech Republic' : 'CZ',
+'Denmark' : 'DK',
+'Germany' : 'DE',
+'Estonia' : 'EE',
+'Ireland' : 'IE',
+'Greece' : 'GR',
+'Spain' : 'ES',
+'France' : 'FR',
+'Croatia' : 'HR',
+'Italy' : 'IT',
+'Cyprus' : 'CY',
+'Latvia' : 'LV',
+'Lithuania' : 'LT',
+'Luxembourg' : 'LU',
+'Hungary' : 'HU',
+'Malta' : 'MA',
+'Netherlands' : 'NL',
+'Austria' : 'AT',
+'Poland' : 'PL',
+'Portugal' : 'PT',
+'Romania' : 'RO',
+'Slovenia' : 'SI',
+'Slovakia' : 'SK',
+'Finland' : 'FI',
+'Sweden' : 'SE',
+'United Kingdom' : 'GB',
+'Iceland' : 'IS',
+'Norway' : 'NO',
+'Montenegro' : 'ME',
+'FYR of Macedonia' : 'MK',
+'Albania' : 'AL',
+'Serbia' : 'RS',
+'Turkey' : 'TU',
+'Bosnia and Herzegovina' : 'BA',
+'Kosovo\n(UNSCR 1244/99)' : 'KO',  #2017 version
+'Kosovo\n(under United Nations Security Council Resolution 1244/99)' : 'KO',  #2016 version
+'Moldova' : 'MO',
+'Ukraine' : 'UK',
+'Switzerland' : 'CH',
+}
+
+code_to_country = { v : k for k,v in country_to_code.items()}
+
 
 #convert MW to GW
 factor = 1e3
@@ -85,9 +133,11 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
     carrier="AC"
     buses = n.buses[n.buses.carrier == carrier]
     
-    data = {"index" : list(buses.index),
-            "x" : list(buses.x.round(coord_round)),
-            "y" : list(buses.y.round(coord_round)),
+    #Add back in a coordinate for Europe far out of graph
+    data = {"index" : ["EU"] + list(buses.index),
+            "x" : [-20.0] + list(buses.x.round(coord_round)),
+            "y" : [80] + list(buses.y.round(coord_round)),
+            "name" : [code_to_country[code] for code in ["EU"] + list(buses.index)]
            }
 
 
@@ -138,8 +188,8 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
         json.dump({sign : {"index" : [rename_techs(c) for c in carriers[sign]],
                    "color" : [colors[c] for c in carriers[sign]]} for sign in ["positive","negative"]}, fp)
 
-    data = {"positive" : [],
-            "negative" : []}
+    #prepare empty DataFrame for European totals
+    data = {sign : [pd.DataFrame(columns=carriers[sign],index=snapshots).fillna(0.)] for sign in carriers}
 
     for ct in buses.index:
 
@@ -147,9 +197,18 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
         generation = n.generators_t.p.loc[:,n.generators.bus == ct].groupby(n.generators.carrier,axis=1).sum().reindex(columns=generation_carriers).fillna(0.)
         load = n.loads_t.p_set.loc[:,n.loads.bus == ct].sum(axis=1)
         load.name = "load"
+        
+        to_add = {}
+        
+        to_add["positive"] = (pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)/factor).loc[snapshots].round(power_round)
+        to_add["negative"] = (pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)/factor).loc[snapshots].round(power_round)
+        
+        for sign in carriers:
+            data[sign][0] += to_add[sign]
+            data[sign].append(to_add[sign].values.tolist())
     
-        data["positive"].append((pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)/factor).loc[snapshots].round(power_round).values.tolist())
-        data["negative"].append((pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)/factor).loc[snapshots].round(power_round).values.tolist())
+    for sign in carriers:
+        data[sign][0] = data[sign][0].values.tolist()
 
 
     with open(folder + 'power.json', 'w') as fp:
@@ -174,9 +233,7 @@ for k,v in to_export.items():
     
     for season, month in seasons.items():
         snapshots = n.snapshots[n.snapshots.slice_indexer("2011-" + month + "-01","2011-" + month + "-07")]
-
         export_network_to_json(n,"./{}-{}/".format(k,season),snapshots=snapshots)
-
 
 n.generators_t.p.groupby(n.generators.carrier,axis=1).sum().sum()/n.loads_t.p_set.sum().sum()
 

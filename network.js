@@ -59,7 +59,7 @@ var scenario = 2;
 
 var season = "winter";
 
-var country_index = 18;
+var country_index = 0;
 
 
 //Define map projection
@@ -99,7 +99,7 @@ var formatDate = d3.timeFormat("%b-%d %H:%M");
 //recursively load files into network object
 //function after is executed at the end
 
-function load_data(scenario, season, after){
+function load_data(after){
 
     var k = 0;
 
@@ -268,18 +268,18 @@ function display_data(){
 
     var options = select
 	.selectAll('option')
-	.data(network.buses.index).enter()
+	.data(network.buses.name).enter()
 	.append('option')
 	.text(function (d) { return d; });
 
-    select.property("value", network.buses.index[country_index]);
+    select.property("value", network.buses.name[country_index]);
 
     draw_graphs();
 }
 
 function update_country(){
     var selectValue = d3.select('select').property('value');
-    country_index = network.buses.index.indexOf(selectValue);
+    country_index = network.buses.name.indexOf(selectValue);
     console.log("country changed to", selectValue,"with index",country_index);
     draw_graphs();
 }
@@ -406,8 +406,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.attr("fill", "rgba(8, 81, 156, 0.01)");
 
 
-
-    load_data(scenario, season, display_data);
+    load_data(display_data);
 });
 
 
@@ -417,7 +416,7 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 d3.selectAll("input[name='scenario']").on("change", function(){
     scenario = this.value;
     console.log("scenario changed to", scenario);
-    load_data(scenario, season, display_data);
+    load_data(display_data);
 });
 
 
@@ -426,7 +425,7 @@ d3.selectAll("input[name='scenario']").on("change", function(){
 d3.selectAll("input[name='season']").on("change", function(){
     season = this.value;
     console.log("season changed to", season);
-    load_data(scenario, season, display_data);
+    load_data(display_data);
 });
 
 
@@ -481,13 +480,13 @@ playButton
 		snapshot_index = -1;
 	    }
 	    moving = true;
-	    timer = setInterval(step, animation_interval);
+	    timer = setInterval(snapshot_step, animation_interval);
 	    button.text("Pause");
 	}
 	console.log("Slider moving: " + moving);
     });
 
-function step() {
+function snapshot_step() {
 
     if(snapshot_index == network.snapshots.length-1){
 	moving = false;
