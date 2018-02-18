@@ -59,7 +59,7 @@ var scenario = 2;
 
 var season = "winter";
 
-var country_index = 4;
+var country_index = 18;
 
 
 //Define map projection
@@ -271,6 +271,8 @@ function display_data(){
 	.data(network.buses.index).enter()
 	.append('option')
 	.text(function (d) { return d; });
+
+    select.property("value", network.buses.index[country_index]);
 
     draw_graphs();
 }
