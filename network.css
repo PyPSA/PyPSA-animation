@@ -68,6 +68,10 @@ h3 {
     width: 800px;
 }
 
+#graphs {
+    float: left;
+    width: 800px;
+}
 
 #timeslide {
     width: 500px;

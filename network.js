@@ -52,9 +52,12 @@ var power_scale = 0.3;
 var animation_interval = 150;
 
 
-//Current snapshot index; value sets start point
+//State variables - values define starting values
 var snapshot_index = 0;
 
+var scenario = 2;
+
+var season = "winter";
 
 var country_index = 4;
 
@@ -83,13 +86,14 @@ var signs = ["positive","negative"];
 
 var files_to_load = ["snapshots","carriers","power","flow","buses","links"];
 
-var scenario = 2;
-
-var season = "winter";
-
 var network = {};
 
 var animate_flows = true;
+
+
+var parseDate = d3.timeParse("%Y-%m-%d %H:%M:00");
+
+var formatDate = d3.timeFormat("%b-%d %H:%M");
 
 
 //recursively load files into network object
@@ -102,6 +106,11 @@ function load_data(scenario, season, after){
     function load_next(){
 
 	if(k >= files_to_load.length){
+
+	    for(var j=0; j < network.snapshots.length; j++) {
+		network.snapshots[j] = parseDate(network.snapshots[j]);
+	    }
+
 	    after();
 	    return;
 	}
@@ -127,8 +136,7 @@ function display_data(){
 
     document.getElementById("timeslide").value = snapshot_index;
 
-    document.getElementById("range").innerHTML=network.snapshots[snapshot_index];
-
+    document.getElementById("range").innerHTML=formatDate(network.snapshots[snapshot_index]);
 
     //Legend
     for(var k=0; k < signs.length; k++) {
@@ -253,11 +261,30 @@ function display_data(){
 
     };
 
+    // Create country selector
+    var select = d3.select("#select-country").on('change', update_country);
+
+    select.selectAll("option").remove();
+
+    var options = select
+	.selectAll('option')
+	.data(network.buses.index).enter()
+	.append('option')
+	.text(function (d) { return d; });
+
+    draw_graphs();
+}
+
+function update_country(){
+    var selectValue = d3.select('select').property('value');
+    country_index = network.buses.index.indexOf(selectValue);
+    console.log("country changed to", selectValue,"with index",country_index);
     draw_graphs();
 }
 
 
 function draw_graphs(){
+
 
     // Inspired by https://bl.ocks.org/mbostock/3885211
 
@@ -266,7 +293,9 @@ function draw_graphs(){
 	width = svgGraph.attr("width") - margin.left - margin.right,
 	height = svgGraph.attr("height") - margin.top - margin.bottom;
 
-    var parseDate = d3.timeParse("%Y-%m-%d %H:%M:00");
+    // remove existing
+    svgGraph.selectAll("g").remove();
+
 
     var x = d3.scaleTime().range([0, width]),
 	y = d3.scaleLinear().range([height, 0]);
@@ -305,7 +334,7 @@ function draw_graphs(){
     };
 
     var area = d3.area()
-        .x(function(d, i) { return x(parseDate(network.snapshots[i])); })
+        .x(function(d, i) { return x(network.snapshots[i]); })
         .y0(function(d) { return y(d[0]); })
         .y1(function(d) { return y(d[1]); });
 
@@ -314,7 +343,7 @@ function draw_graphs(){
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-    x.domain(d3.extent(network.snapshots, function(d) { return parseDate(d); }));
+    x.domain(d3.extent(network.snapshots));
     y.domain([ymin,ymax]);
 
     var layer = g.selectAll(".layer")
@@ -335,6 +364,15 @@ function draw_graphs(){
     g.append("g")
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(y));
+
+    // text label for the y axis
+    svgGraph.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Power [GW]");
 }
 
 
@@ -387,7 +425,7 @@ d3.select("#timeslide").on("input", function() {
 
 function update(value) {
     snapshot_index = value;
-    document.getElementById("range").innerHTML=network.snapshots[snapshot_index];
+    document.getElementById("range").innerHTML=formatDate(network.snapshots[snapshot_index]);
 
     line_layer.selectAll("path")
 	.attr("d", function(d, i) {var from = 0; if(network.flow[snapshot_index][i] < 0){from = 1}; return lineFunction([projection([network.links["x" + from][i],network.links["y" + from][i]]),projection([network.links["x" + (1-from)][i],network.links["y" + (1-from)][i]])])})
