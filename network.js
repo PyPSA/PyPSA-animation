@@ -297,7 +297,7 @@ function draw_graphs(){
     svgGraph.selectAll("g").remove();
 
 
-    var x = d3.scaleTime().range([0, width]),
+    x = d3.scaleTime().range([0, width]),
 	y = d3.scaleLinear().range([height, 0]);
 
     data = [];
@@ -327,7 +327,7 @@ function draw_graphs(){
     }
 
 
-    var ymin = 0, ymax = 0;
+    ymin = 0, ymax = 0;
     for (var k = 0; k < network.snapshots.length; k++){
 	if(data[network.carriers["positive"].index.length-1][k][1] > ymax){ ymax = data[network.carriers["positive"].index.length-1][k][1];};
 	if(data[network.carriers["positive"].index.length+network.carriers["negative"].index.length-1][k][0] < ymin){ ymin = data[network.carriers["positive"].index.length+network.carriers["negative"].index.length-1][k][0];};
@@ -365,14 +365,26 @@ function draw_graphs(){
         .attr("class", "axis axis--y")
         .call(d3.axisLeft(y));
 
+    var label = svgGraph.append("g").attr("class", "y-label");
+
     // text label for the y axis
-    svgGraph.append("text")
+    label.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0)
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Power [GW]");
+
+    var indicator = g.append("g");
+
+    indicator.append("path")
+        .attr("d", function(){ return lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]])})
+        .attr("id", "indicator")
+        .attr("stroke", "#000000")
+        .attr("stroke-width", 2);
+
+
 }
 
 
@@ -419,11 +431,11 @@ d3.selectAll("input[name='season']").on("change", function(){
 
 // when the input range changes update the value
 d3.select("#timeslide").on("input", function() {
-    update(+this.value);
+    update_snapshot(+this.value);
 });
 
 
-function update(value) {
+function update_snapshot(value) {
     snapshot_index = value;
     document.getElementById("range").innerHTML=formatDate(network.snapshots[snapshot_index]);
 
@@ -441,6 +453,10 @@ function update(value) {
         .attr("d", function(d) { return arc_path.outerRadius(d["total"]**0.5/power_scale)(d)})
         .style("fill", function(d, i) { return network.carriers[sign].color[i] });
     }
+
+    var indicator = d3.select("#indicator")
+        .attr("d", function(){ return lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]])});
+
 }
 
 
@@ -481,7 +497,7 @@ function step() {
     else{
 	snapshot_index += 1;
 	document.getElementById("timeslide").value = snapshot_index;
-	update(snapshot_index);
+	update_snapshot(snapshot_index);
     }
 }
 
