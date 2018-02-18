@@ -93,7 +93,7 @@ var animate_flows = true;
 
 var parseDate = d3.timeParse("%Y-%m-%d %H:%M:00");
 
-var formatDate = d3.timeFormat("%b-%d %H:%M");
+var formatDate = d3.timeFormat("%b %d %H:%M");
 
 
 //recursively load files into network object
@@ -262,17 +262,16 @@ function display_data(){
     };
 
     // Create country selector
-    var select = d3.select("#select-country").on('change', update_country);
+    var selectCountry = d3.select("#select-country").on('change', update_country);
 
-    select.selectAll("option").remove();
+    selectCountry.selectAll("option").remove();
 
-    var options = select
-	.selectAll('option')
+    var options = selectCountry.selectAll('option')
 	.data(network.buses.name).enter()
 	.append('option')
 	.text(function (d) { return d; });
 
-    select.property("value", network.buses.name[country_index]);
+    selectCountry.property("value", network.buses.name[country_index]);
 
     draw_graphs();
 }
