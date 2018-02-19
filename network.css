@@ -84,6 +84,11 @@ h3 {
     width: 380px;
 }
 
+#costDiv {
+    float: left;
+    width: 380px;
+}
+
 
 #timeslide {
     width: 500px;

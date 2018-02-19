@@ -201,3 +201,13 @@ With AGPL licence, README
 Link to and from pypsa.org/animations/pypsa-eur-30/index.html
 
 ** Add OCGT marginal, transmission to legend
+
+** Add hover labels to graphs
+
+** Line capacities underneath dashed lines??
+
+** Add comparable websites
+
+** Add BMBF reference?
+
+** //d3js.org/ link

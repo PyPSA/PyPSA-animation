@@ -282,6 +282,7 @@ function update_country(){
     console.log("country changed to", selectValue,"with index",country_index);
     draw_graphs();
     draw_energy_graph();
+    draw_power_graph();
 }
 
 
@@ -506,6 +507,228 @@ function draw_energy_graph(){
 
 
 
+function draw_power_graph(){
+
+
+    // Inspired by https://bl.ocks.org/mbostock/3885211
+
+    var svgGraph = d3.select("#power"),
+	margin = {top: 20, right: 20, bottom: 35, left: 58},
+	width = svgGraph.attr("width") - margin.left - margin.right,
+	height = svgGraph.attr("height") - margin.top - margin.bottom;
+
+    // remove existing
+    svgGraph.selectAll("g").remove();
+
+
+    powerX = d3.scaleLinear().range([0, width]),
+	powerY = d3.scaleLinear().range([height, 0]);
+
+    data = [];
+
+    // Custom version of d3.stack
+
+    var previousPos = new Array(scenarios.length).fill(0);
+    var previousNeg = new Array(scenarios.length).fill(0);
+
+    powerMin = 0, powerMax = 0;
+
+    for (var j = 0; j < metrics["power"][country_index][0].length; j++){
+	var item = [];
+	for (var k = 0; k < metrics["power"][country_index].length; k++){
+	    var contrib = metrics["power"][country_index][k][j];
+	    if(contrib >= 0){
+		item.push([previousPos[k], previousPos[k] + contrib]);
+		previousPos[k] += contrib;
+		if(previousPos[k] > powerMax){ powerMax = previousPos[k];};
+	    }
+	    else{
+		item.push([previousNeg[k], previousNeg[k] + contrib]);
+		previousNeg[k] += contrib;
+		if(previousNeg[k] < powerMin){ powerMin = previousNeg[k];};
+	    }
+	}
+	data.push(item);
+    }
+
+    var area = d3.area()
+        .x(function(d, i) { return powerX(scenarios[i]); })
+        .y0(function(d) { return powerY(d[0]); })
+        .y1(function(d) { return powerY(d[1]); });
+
+
+    var g = svgGraph.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    powerX.domain([scenarios[0],scenarios[scenarios.length-1]]);
+    powerY.domain([powerMin,powerMax]);
+
+    var layer = g.selectAll(".layer")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "layer");
+
+    layer.append("path")
+        .attr("class", "area")
+        .style("fill", function(d, i) { return metrics["power_colors"][i] })
+        .attr("d", area);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(powerX));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(powerY));
+
+    var label = svgGraph.append("g").attr("class", "y-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Installed Capacity [GW]");
+
+    var label = svgGraph.append("g").attr("class", "x-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("y", height+35)
+        .attr("x", 30+width/2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("European cross-border transmission [x today's]");
+
+
+    var indicator = g.append("g");
+
+    indicator.append("path")
+        .attr("d", lineFunction([[powerX(scenario),powerY(powerMin)],[powerX(scenario),powerY(powerMax)]]))
+        .attr("id", "powerIndicator")
+        .attr("stroke", "#000000")
+        .attr("stroke-width", 2);
+
+
+}
+
+
+
+function draw_cost_graph(){
+
+
+    // Inspired by https://bl.ocks.org/mbostock/3885211
+
+    var svgGraph = d3.select("#cost"),
+	margin = {top: 20, right: 20, bottom: 35, left: 58},
+	width = svgGraph.attr("width") - margin.left - margin.right,
+	height = svgGraph.attr("height") - margin.top - margin.bottom;
+
+    // remove existing
+    svgGraph.selectAll("g").remove();
+
+
+    costX = d3.scaleLinear().range([0, width]),
+	costY = d3.scaleLinear().range([height, 0]);
+
+    data = [];
+
+    // Custom version of d3.stack
+
+    var previousPos = new Array(scenarios.length).fill(0);
+    var previousNeg = new Array(scenarios.length).fill(0);
+
+    costMin = 0, costMax = 0;
+
+    for (var j = 0; j < metrics["cost"][country_index][0].length; j++){
+	var item = [];
+	for (var k = 0; k < metrics["cost"][country_index].length; k++){
+	    var contrib = metrics["cost"][country_index][k][j]/1e9;
+	    if(contrib >= 0){
+		item.push([previousPos[k], previousPos[k] + contrib]);
+		previousPos[k] += contrib;
+		if(previousPos[k] > costMax){ costMax = previousPos[k];};
+	    }
+	    else{
+		item.push([previousNeg[k], previousNeg[k] + contrib]);
+		previousNeg[k] += contrib;
+		if(previousNeg[k] < costMin){ costMin = previousNeg[k];};
+	    }
+	}
+	data.push(item);
+    }
+
+    var area = d3.area()
+        .x(function(d, i) { return costX(scenarios[i]); })
+        .y0(function(d) { return costY(d[0]); })
+        .y1(function(d) { return costY(d[1]); });
+
+
+    var g = svgGraph.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    costX.domain([scenarios[0],scenarios[scenarios.length-1]]);
+    costY.domain([costMin,costMax]);
+
+    var layer = g.selectAll(".layer")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "layer");
+
+    layer.append("path")
+        .attr("class", "area")
+        .style("fill", function(d, i) { return metrics["cost_colors"][i] })
+        .attr("d", area);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(costX));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(costY));
+
+    var label = svgGraph.append("g").attr("class", "y-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Yearly System Cost [EUR billion/a]");
+
+    var label = svgGraph.append("g").attr("class", "x-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("y", height+35)
+        .attr("x", 30+width/2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("European cross-border transmission [x today's]");
+
+
+    var indicator = g.append("g");
+
+    indicator.append("path")
+        .attr("d", lineFunction([[costX(scenario),costY(costMin)],[costX(scenario),costY(costMax)]]))
+        .attr("id", "costIndicator")
+        .attr("stroke", "#000000")
+        .attr("stroke-width", 2);
+
+
+}
+
+
+
 
 //Load in GeoJSON data
 d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
@@ -525,6 +748,8 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
     d3.json("metrics.json", function(json){
 	metrics = json;
 	draw_energy_graph();
+	draw_power_graph();
+	draw_cost_graph();
 	load_data(display_data);
     });
 });
@@ -540,6 +765,12 @@ d3.selectAll("input[name='scenario']").on("change", function(){
 
     d3.select("#energyIndicator")
         .attr("d", lineFunction([[energyX(scenario),energyY(energyMin)],[energyX(scenario),energyY(energyMax)]]));
+
+    d3.select("#powerIndicator")
+        .attr("d", lineFunction([[powerX(scenario),powerY(powerMin)],[powerX(scenario),powerY(powerMax)]]));
+
+    d3.select("#costIndicator")
+        .attr("d", lineFunction([[costX(scenario),costY(costMin)],[costX(scenario),costY(costMax)]]));
 
 });
 
