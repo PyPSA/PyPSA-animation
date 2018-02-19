@@ -1,2 +1,4 @@
 *.json
 *.ipynb
+d3.v4.min.js
+topojson.v1.min.js

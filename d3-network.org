@@ -153,7 +153,7 @@ https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
 
 ** DONE Zoom, bring down Scandinavia
 
-** Parallel graph
+** DONE Parallel graph
 
 Either for whole of Europe or individual country - drop-down menu to choose
 
@@ -199,3 +199,5 @@ https://gist.github.com/MariellaCC/8dea97c0f61429d1b72a
 With AGPL licence, README
 
 Link to and from pypsa.org/animations/pypsa-eur-30/index.html
+
+** Add OCGT marginal, transmission to legend

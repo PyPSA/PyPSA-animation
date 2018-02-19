@@ -68,10 +68,22 @@ h3 {
     width: 800px;
 }
 
-#graphs {
+.across {
+    margin-top : 0px;
     float: left;
     width: 800px;
 }
+
+#energyDiv {
+    float: left;
+    width: 380px;
+}
+
+#powerDiv {
+    float: left;
+    width: 380px;
+}
+
 
 #timeslide {
     width: 500px;

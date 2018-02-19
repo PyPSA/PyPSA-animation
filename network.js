@@ -38,6 +38,11 @@ function half_pie(array, startAngle){
     return result;
 }
 
+var lineFunction = d3.line()
+    .x(function(d) { return d[0] })
+    .y(function(d) { return d[1] })
+    .curve(d3.curveLinear);
+
 
 //Width and height
 var w = 500;
@@ -51,6 +56,7 @@ var power_scale = 0.3;
 //interval for animation update in milliseconds
 var animation_interval = 150;
 
+var scenarios = [0,1,2,4,8];
 
 //State variables - values define starting values
 var snapshot_index = 0;
@@ -201,12 +207,6 @@ function display_data(){
     line_layer = svg.append("g")
         .attr("id","lines");
 
-
-    lineFunction = d3.line()
-        .x(function(d) { return d[0] })
-        .y(function(d) { return d[1] })
-        .curve(d3.curveLinear);
-
     if(animate_flows){
 	var cls = "flowline-animated";
     }
@@ -281,6 +281,7 @@ function update_country(){
     country_index = network.buses.name.indexOf(selectValue);
     console.log("country changed to", selectValue,"with index",country_index);
     draw_graphs();
+    draw_energy_graph();
 }
 
 
@@ -380,13 +381,130 @@ function draw_graphs(){
     var indicator = g.append("g");
 
     indicator.append("path")
-        .attr("d", function(){ return lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]])})
+        .attr("d", lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]]))
         .attr("id", "indicator")
         .attr("stroke", "#000000")
         .attr("stroke-width", 2);
 
 
 }
+
+
+
+
+
+
+
+function draw_energy_graph(){
+
+
+    // Inspired by https://bl.ocks.org/mbostock/3885211
+
+    var svgGraph = d3.select("#energy"),
+	margin = {top: 20, right: 20, bottom: 35, left: 58},
+	width = svgGraph.attr("width") - margin.left - margin.right,
+	height = svgGraph.attr("height") - margin.top - margin.bottom;
+
+    // remove existing
+    svgGraph.selectAll("g").remove();
+
+
+    energyX = d3.scaleLinear().range([0, width]),
+	energyY = d3.scaleLinear().range([height, 0]);
+
+    data = [];
+
+    // Custom version of d3.stack
+
+    var previousPos = new Array(scenarios.length).fill(0);
+    var previousNeg = new Array(scenarios.length).fill(0);
+
+    energyMin = 0, energyMax = 0;
+
+    for (var j = 0; j < metrics["energy"][country_index][0].length; j++){
+	var item = [];
+	for (var k = 0; k < metrics["energy"][country_index].length; k++){
+	    var contrib = metrics["energy"][country_index][k][j]/1000.;
+	    if(contrib >= 0){
+		item.push([previousPos[k], previousPos[k] + contrib]);
+		previousPos[k] += contrib;
+		if(previousPos[k] > energyMax){ energyMax = previousPos[k];};
+	    }
+	    else{
+		item.push([previousNeg[k], previousNeg[k] + contrib]);
+		previousNeg[k] += contrib;
+		if(previousNeg[k] < energyMin){ energyMin = previousNeg[k];};
+	    }
+	}
+	data.push(item);
+    }
+
+    var area = d3.area()
+        .x(function(d, i) { return energyX(scenarios[i]); })
+        .y0(function(d) { return energyY(d[0]); })
+        .y1(function(d) { return energyY(d[1]); });
+
+
+    var g = svgGraph.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    energyX.domain([scenarios[0],scenarios[scenarios.length-1]]);
+    energyY.domain([energyMin,energyMax]);
+
+    var layer = g.selectAll(".layer")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "layer");
+
+    layer.append("path")
+        .attr("class", "area")
+        .style("fill", function(d, i) { return metrics["energy_colors"][i] })
+        .attr("d", area);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(energyX));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(energyY));
+
+    var label = svgGraph.append("g").attr("class", "y-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Yearly Energy [TWh/a]");
+
+    var label = svgGraph.append("g").attr("class", "x-label");
+
+    // text label for the y axis
+    label.append("text")
+        .attr("y", height+35)
+        .attr("x", 30+width/2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("European cross-border transmission [x today's]");
+
+
+    var indicator = g.append("g");
+
+    indicator.append("path")
+        .attr("d", lineFunction([[energyX(scenario),energyY(energyMin)],[energyX(scenario),energyY(energyMax)]]))
+        .attr("id", "energyIndicator")
+        .attr("stroke", "#000000")
+        .attr("stroke-width", 2);
+
+
+}
+
+
 
 
 //Load in GeoJSON data
@@ -404,8 +522,11 @@ d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
 	.attr("stroke", "rgba(8, 81, 156, 0.2)")
 	.attr("fill", "rgba(8, 81, 156, 0.01)");
 
-
-    load_data(display_data);
+    d3.json("metrics.json", function(json){
+	metrics = json;
+	draw_energy_graph();
+	load_data(display_data);
+    });
 });
 
 
@@ -416,6 +537,10 @@ d3.selectAll("input[name='scenario']").on("change", function(){
     scenario = this.value;
     console.log("scenario changed to", scenario);
     load_data(display_data);
+
+    d3.select("#energyIndicator")
+        .attr("d", lineFunction([[energyX(scenario),energyY(energyMin)],[energyX(scenario),energyY(energyMax)]]));
+
 });
 
 
@@ -455,7 +580,7 @@ function update_snapshot(value) {
     }
 
     var indicator = d3.select("#indicator")
-        .attr("d", function(){ return lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]])});
+        .attr("d", lineFunction([[x(network.snapshots[snapshot_index]),y(ymin)],[x(network.snapshots[snapshot_index]),y(ymax)]]));
 
 }
 

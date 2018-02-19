@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8">
 		<title>PyPSA-Eur-30: Scenarios for Europe with 95% renewable electricity</title>
-		<script src="//d3js.org/d3.v4.min.js" charset="utf-8"></script>
-		<script src="//d3js.org/topojson.v1.min.js"></script>
+		<script src="d3.v4.min.js" charset="utf-8"></script>
+		<script src="topojson.v1.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="network.css" />
 
 	</head>
@@ -94,10 +94,28 @@
 	  <div id="right">
 	    <button id="flow-button">Toggle flow animation: On</button> (only Firefox/Chrome; can be CPU intensive)
 	  </div>
-	  <div id="graphs">
+
+	  <div class="across">
+	    <p></p>
 	  <h3>Choose country for detailed information</h3>
 	  <p><select id="select-country"></select></p>
 	  <svg width="800" height="400" id="graph"></svg>
+	  </div>
+	  <div class="across">
+	  <h3>Country installed power and yearly energy depending on European cross-border capacity</h3>
+	  </div>
+	  <div id="energyDiv">
+	    <svg width="370" height="300" id="energy"></svg>
+	  </div>
+	  <div id="powerDiv">
+	    <svg width="370" height="300" id="power"></svg>
+	  </div>
+
+	  <div class="across">
+	  <h3>Europe-wide statistics</h3>
+	  </div>
+	  <div class="across">
+	    <h3>Comparable similar websites</h3>
 	  </div>
 	</div>
 
