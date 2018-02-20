@@ -206,11 +206,11 @@ Link to and from pypsa.org/animations/pypsa-eur-30/index.html
 
 ** DONE Line capacities underneath dashed lines??
 
-** Add comparable websites
+** DONE Add comparable websites
 
 ** Add BMBF reference?
 
-** //d3js.org/ link
+** DONE //d3js.org/ link
 
 ** DONE cosmetics
 
@@ -218,7 +218,7 @@ map graphic bigger
 
 flip power/energy
 
-** screenshot to README
+** DONE screenshot to README
 
 ** DONE refactor graph drawing for cost/energy/power
 

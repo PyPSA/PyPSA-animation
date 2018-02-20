@@ -23,10 +23,19 @@ It is released as `free software
 <http://www.gnu.org/philosophy/free-sw.en.html>`_ under the `AGPL
 <https://www.gnu.org/licenses/agpl-3.0.en.html>`_.
 
-Examples
-========
+Example and screenshot
+======================
 
-See `PyPSA-Eur-30 <https://www.pypsa.org/animations/pypsa-eur-30/>`_.
+See `PyPSA-Eur-30 <https://www.pypsa.org/animations/pypsa-eur-30/>`_ for a running example.
+
+Screenshot:
+
+.. image:: http://www.pypsa.org/img/pypsa-animation.png
+
+
+
+
+
 
 How to use it
 =============
