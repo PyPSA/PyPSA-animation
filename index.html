@@ -67,9 +67,9 @@
 	  <div id="season">
 	  <h3>Choose season</h3>
 	  <form id="season_selection">
-	    <input type="radio" name="season" value="winter" checked> winter<br>
+	    <input type="radio" name="season" value="winter"> winter<br>
 	    <input type="radio" name="season" value="spring"> spring<br>
-	    <input type="radio" name="season" value="summer"> summer<br>
+	    <input type="radio" name="season" value="summer" checked> summer<br>
 	    <input type="radio" name="season" value="autumn"> autumn<br>
 	  </form>
 	  </div>
@@ -102,24 +102,23 @@
 	  <svg width="800" height="400" id="graph"></svg>
 	  </div>
 	  <div class="across">
-	  <h3>Country installed power and yearly energy depending on European cross-border capacity</h3>
+	  <h3>Country yearly energy and installed power depending on European cross-border capacity</h3>
 	  </div>
-	  <div id="energyDiv">
+	  <div class="graph">
 	    <svg width="370" height="300" id="energy"></svg>
 	  </div>
-	  <div id="powerDiv">
+	  <div class="graph">
 	    <svg width="370" height="300" id="power"></svg>
 	  </div>
 
 	  <div class="across">
-	  <h3>Europe-wide statistics</h3>
-	  <p>(Additional legend: transmission costs in black and gas fuel costs in orange)
+	  <h3>Total European annual system costs depending on cross-border capacity</h3>
+	  <p>(Additional legend: transmission costs in black and gas
+	  fuel costs in orange; distribution grid and ancillary
+	  services costs not included)</p>
 	  </div>
-	  <div id="costDiv">
+	  <div class="graph">
 	    <svg width="370" height="300" id="cost"></svg>
-	  </div>
-	  <div id="metricsDiv">
-	    <svg width="370" height="300" id="metrics"></svg>
 	  </div>
 	  <div class="across">
 	    <h3>Comparable similar websites</h3>

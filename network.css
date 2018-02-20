@@ -74,17 +74,7 @@ h3 {
     width: 800px;
 }
 
-#energyDiv {
-    float: left;
-    width: 380px;
-}
-
-#powerDiv {
-    float: left;
-    width: 380px;
-}
-
-#costDiv {
+.graph {
     float: left;
     width: 380px;
 }

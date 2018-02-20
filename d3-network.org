@@ -211,3 +211,15 @@ Link to and from pypsa.org/animations/pypsa-eur-30/index.html
 ** Add BMBF reference?
 
 ** //d3js.org/ link
+
+** cosmetics
+
+map graphic bigger
+
+flip power/energy
+
+** screenshot to README
+
+** refactor graph drawing for cost/energy/power
+
+** start in summer
