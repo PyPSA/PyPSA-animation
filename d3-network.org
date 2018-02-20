@@ -157,7 +157,7 @@ https://bl.ocks.org/officeofjane/47d2b0bfeecfcb41d2212d06d095c763
 
 Either for whole of Europe or individual country - drop-down menu to choose
 
-** see per-country time series, total capacity and energy and cost
+** DONE see per-country time series, total capacity and energy and cost
 
 also per scenario settings
 
@@ -204,7 +204,7 @@ Link to and from pypsa.org/animations/pypsa-eur-30/index.html
 
 ** Add hover labels to graphs
 
-** Line capacities underneath dashed lines??
+** DONE Line capacities underneath dashed lines??
 
 ** Add comparable websites
 
@@ -212,7 +212,7 @@ Link to and from pypsa.org/animations/pypsa-eur-30/index.html
 
 ** //d3js.org/ link
 
-** cosmetics
+** DONE cosmetics
 
 map graphic bigger
 
@@ -220,6 +220,12 @@ flip power/energy
 
 ** screenshot to README
 
-** refactor graph drawing for cost/energy/power
+** DONE refactor graph drawing for cost/energy/power
 
-** start in summer
+** DONE start in summer
+
+** TODO Other metrics
+
+CO2 price, load-weighted average price, market values of wind and solar
+
+NO! marginal prices not in results files...

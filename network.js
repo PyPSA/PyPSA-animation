@@ -45,8 +45,8 @@ var lineFunction = d3.line()
 
 
 //Width and height
-var w = 500;
-var h = 500;
+var w = 600;
+var h = 600;
 
 
 //Scale flow and power
@@ -181,7 +181,7 @@ function display_data(){
     var legendSVG = d3.select("#legend-scale")
 	.append("svg")
         .attr("width",180)
-        .attr("height",120);
+        .attr("height",150);
 
     //divide by 2 because only half of pie corresponds to total power
     legendSVG.append("circle").attr("cx",20).attr("cy",15).attr("r",(5/2)**0.5/power_scale).attr("fill","#FFFFFF").attr("stroke","black").attr("stroke-width",1);
@@ -192,14 +192,23 @@ function display_data(){
 
     legendSVG.append("text").attr("x",40).attr("y",50).text("25 GW");
 
-    legendSVG.append("rect").attr("x",0).attr("y",70).attr("width",30).attr("height",1/flow_scale).attr("fill","#999999");
 
-    legendSVG.append("text").attr("x",40).attr("y",80).text("1 GW flow");
+    legendSVG.append("path").attr("d",lineFunction([[0,75],[30,75]])).attr("class","capacityline").attr("stroke-width",1/flow_scale);
 
-    legendSVG.append("rect").attr("x",0).attr("y",90).attr("width",30).attr("height",10/flow_scale).attr("fill","#999999");
+    legendSVG.append("text").attr("x",40).attr("y",80).text("1 GW capacity");
 
-    legendSVG.append("text").attr("x",40).attr("y",100).text("10 GW flow");
+    legendSVG.append("path").attr("d",lineFunction([[0,95],[30,95]])).attr("class","capacityline").attr("stroke-width",10/flow_scale);
 
+    legendSVG.append("text").attr("x",40).attr("y",100).text("10 GW capacity");
+
+
+    legendSVG.append("path").attr("d",lineFunction([[0,125],[30,125]])).attr("class","flowline").attr("stroke-width",1/flow_scale);
+
+    legendSVG.append("text").attr("x",40).attr("y",130).text("1 GW flow");
+
+    legendSVG.append("path").attr("d",lineFunction([[0,145],[30,145]])).attr("class","flowline").attr("stroke-width",10/flow_scale);
+
+    legendSVG.append("text").attr("x",40).attr("y",150).text("10 GW flow");
 
     // remove existing
     d3.select("g#lines").remove();
@@ -214,7 +223,7 @@ function display_data(){
 	var cls = "flowline";
     }
 
-    lines = line_layer.selectAll("path")
+    line_layer.selectAll("path")
 	.data(network.links.index)
 	.enter()
 	.append("path")
@@ -222,6 +231,19 @@ function display_data(){
         .attr("class", cls)
         .attr("stroke-width", function(d, i) { return Math.abs(network.flow[snapshot_index][i])/flow_scale});
 
+    // remove existing
+    d3.select("g#line_capacities").remove();
+
+    line_capacity_layer = svg.append("g")
+        .attr("id","line_capacities");
+
+    line_capacity_layer.selectAll("path")
+	.data(network.links.index)
+	.enter()
+	.append("path")
+	.attr("d", function(d, i) { return lineFunction([projection([network.links.x0[i],network.links.y0[i]]),projection([network.links.x1[i],network.links.y1[i]])])})
+        .attr("class", "capacityline")
+        .attr("stroke-width", function(d, i) { return network.links.p_nom_opt[i]/flow_scale/1000});
 
     // This is a function which transforms arc data into a path
     arc_path = d3.arc()
