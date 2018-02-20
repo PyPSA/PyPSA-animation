@@ -294,7 +294,8 @@ def export_metrics_to_json(network, power_round=1):
         
         storage_cost = (n.storage_units.p_nom_opt*n.storage_units.capital_cost)[n.storage_units.bus==ct].groupby(n.storage_units.carrier).sum()
         
-        transmission_cost = pd.Series([(n.links.p_nom_opt*n.links.capital_cost)[(n.links.bus0 == ct) ^ (n.links.bus1 == ct)].sum()],
+        #Each country gets half of transmission lines ending there
+        transmission_cost = 0.5*pd.Series([(n.links.p_nom_opt*n.links.capital_cost)[(n.links.bus0 == ct) ^ (n.links.bus1 == ct)].sum()],
                                       index=["transmission"])
         
         marginal_cost = pd.Series([n.generators.at[ct+" OCGT","marginal_cost"]*n.generators_t.p[ct+" OCGT"].sum()],
@@ -319,6 +320,10 @@ def export_metrics_to_json(network, power_round=1):
 
     metrics["cost_carriers"] = cost_carriers.tolist()
     metrics["cost_colors"] = [colors[i] for i in cost_carriers]
+    
+    metrics["price"].append([])
+    
+    metrics["price"][-1].append(-pd.read_csv(v+ "shadow_prices.csv").at[0,"co2_constraint"])
 
 seasons = {"winter" : "01",
            "spring" : "04",
@@ -343,6 +348,7 @@ to_export_selection = [0,1,2,4,8]
 for k in to_export_selection:
     v = to_export[k]
     n = pypsa.Network(v)
+    n.folder = v
     
     for season, month in seasons.items():
         snapshots = n.snapshots[n.snapshots.slice_indexer("2011-" + month + "-01","2011-" + month + "-07")]

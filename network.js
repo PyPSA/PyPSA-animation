@@ -563,7 +563,7 @@ function after_load(){
 
 
 //Load in GeoJSON data
-d3.json("ne_50m_admin_0_countries_simplified.json", function(json) {
+d3.json("ne_50m_admin_0_countries_simplified_europe.json", function(json) {
 
     countries = svg.append("g")
         .attr("id","countries");

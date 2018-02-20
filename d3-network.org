@@ -190,7 +190,7 @@ Link to github pypsa-animation
 
 ** DONE Load different seasons
 
-** Shrink Natural Earth file?
+** DONE Shrink Natural Earth file?
 
 https://gist.github.com/MariellaCC/8dea97c0f61429d1b72a
 
