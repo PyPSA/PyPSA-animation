@@ -21,7 +21,7 @@ from vresutils.costdata import annuity
 
 #%matplotlib inline
 
-preferred_order = pd.Index(["offwind","onwind","solar","OCGT","ror","hydro","PHS","battery","H2"])
+preferred_order = pd.Index(["offwind","onwind","solar","OCGT","ror","hydro","electricity demand","PHS","battery","H2"])
 
 colors = {"OCGT" :"#835C3B",
           "OCGT marginal" : "#fc7502",
@@ -187,7 +187,10 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
 
     carriers["positive"] = generation_carriers.append(storage_carriers)
 
-    carriers["negative"] = pd.Index(["electricity demand"]).append(storage_carriers)
+    #although hydro is modelled as a storage, it cannot be negative p_min_pu = 0.
+    carriers["negative"] = pd.Index(["electricity demand"]).append(storage_carriers.difference(pd.Index(["hydro"])))
+    carriers["negative"] = (preferred_order&carriers["negative"]).append(carriers["negative"].difference(preferred_order))
+    
 
     with open(folder + 'carriers.json', 'w') as fp:
         json.dump({sign : {"index" : [rename_techs(c) for c in carriers[sign]],
@@ -205,8 +208,8 @@ def export_network_to_json(network, export_folder, snapshots=None, coord_round=3
         
         to_add = {}
         
-        to_add["positive"] = (pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)/factor).round(power_round)
-        to_add["negative"] = (pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)/factor).round(power_round)
+        to_add["positive"] = (pd.concat((generation,storage[storage > 0]),axis=1).fillna(0.)/factor).round(power_round).reindex(columns=carriers["positive"])
+        to_add["negative"] = (pd.concat((load,-storage[storage < 0]),axis=1).fillna(0.)/factor).round(power_round).reindex(columns=carriers["negative"])
         
         for sign in carriers:
             data[sign][0] += to_add[sign].loc[snapshots]
@@ -254,27 +257,20 @@ def export_metrics_to_json(network, power_round=1):
     storage_carriers = n.storage_units.carrier.value_counts().index
     storage_carriers = (preferred_order&storage_carriers).append(storage_carriers.difference(preferred_order))
     print("storage carriers:",storage_carriers)
-    
-    carriers = {}
 
-    carriers["positive"] = generation_carriers.append(storage_carriers)
-
-    carriers["negative"] = pd.Index(["electricity demand"]).append(storage_carriers)
-    
-    
     if len(metrics["energy"]) == 0:
         metrics["energy"] = [[] for i in range(len(buses.index)+1)]
         metrics["power"] = [[] for i in range(len(buses.index)+1)]
         metrics["cost"] = [[] for i in range(len(buses.index)+1)]
     
-    energy_carriers = generation_carriers.append(carriers["negative"])
-    cost_carriers = carriers["positive"].append(pd.Index(["OCGT marginal","transmission"]))
+    carriers = {}
+    carriers["energy"] = generation_carriers.append(pd.Index(["electricity demand"]).append(storage_carriers))
+    carriers["power"] =  generation_carriers.append(storage_carriers)
+    carriers["cost"] =  carriers["power"].append(pd.Index(["OCGT marginal","transmission"]))
     
-    metrics["energy"][0].append(pd.Series(index=energy_carriers).fillna(0.))
-    metrics["power"][0].append(pd.Series(index=carriers["positive"]).fillna(0.))
-    metrics["cost"][0].append(pd.Series(index=cost_carriers).fillna(0.))
-    
-    
+    for k,v in carriers.items():
+        metrics[k][0].append(pd.Series(index=v).fillna(0.))
+
     for i,ct in enumerate(buses.index):
 
         storage = n.storage_units_t.p.loc[:,n.storage_units.bus == ct].groupby(n.storage_units.carrier,axis=1).sum().reindex(columns=storage_carriers).fillna(0.)
@@ -284,11 +280,11 @@ def export_metrics_to_json(network, power_round=1):
         
         data = {}
 
-        data["energy"] = (pd.concat((generation.sum(),storage.sum(),pd.Series([-load.sum()],[load.name])))/factor).round(power_round).reindex(energy_carriers)
+        data["energy"] = (pd.concat((generation.sum(),storage.sum(),pd.Series([-load.sum()],[load.name])))/factor).round(power_round).reindex(carriers["energy"])
 
         
         data["power"] = (pd.concat((n.generators.p_nom_opt[n.generators.bus==ct].groupby(n.generators.carrier).sum(),
-                            n.storage_units.p_nom_opt[n.storage_units.bus==ct].groupby(n.storage_units.carrier).sum()))/factor).round(power_round).reindex(carriers["positive"]).fillna(0.)
+                            n.storage_units.p_nom_opt[n.storage_units.bus==ct].groupby(n.storage_units.carrier).sum()))/factor).round(power_round).reindex(carriers["power"]).fillna(0.)
 
         generation_cost = (n.generators.p_nom_opt*n.generators.capital_cost)[n.generators.bus==ct].groupby(n.generators.carrier).sum()
         
@@ -301,29 +297,21 @@ def export_metrics_to_json(network, power_round=1):
         marginal_cost = pd.Series([n.generators.at[ct+" OCGT","marginal_cost"]*n.generators_t.p[ct+" OCGT"].sum()],
                                   index=["OCGT marginal"])
         
-        data["cost"] = pd.concat((generation_cost,storage_cost,transmission_cost,marginal_cost)).reindex(cost_carriers).fillna(0.)
+        data["cost"] = pd.concat((generation_cost,storage_cost,transmission_cost,marginal_cost)).reindex(carriers["cost"]).fillna(0.)
         
         
-        for item in ["energy","power","cost"]:
+        for item in carriers:
             metrics[item][0][-1] += data[item]
             metrics[item][i+1].append(data[item].values.tolist())
         
-    for item in ["energy","power","cost"]:
+    for item in carriers:
         metrics[item][0][-1] = metrics[item][0][-1].values.tolist()
+        metrics[item+"_carriers"] = carriers[item].tolist()
+        metrics[item+"_colors"] = [colors[i] for i in carriers[item]]
 
-        
-    metrics["energy_carriers"] = energy_carriers.tolist()
-    metrics["energy_colors"] = [colors[i] for i in energy_carriers]
-    
-    metrics["power_carriers"] = carriers["positive"].tolist()
-    metrics["power_colors"] = [colors[i] for i in carriers["positive"]]
-
-    metrics["cost_carriers"] = cost_carriers.tolist()
-    metrics["cost_colors"] = [colors[i] for i in cost_carriers]
-    
     metrics["price"].append([])
     
-    metrics["price"][-1].append(-pd.read_csv(v+ "shadow_prices.csv").at[0,"co2_constraint"])
+    metrics["price"][-1].append(-pd.read_csv(n.folder+ "shadow_prices.csv").at[0,"co2_constraint"])
 
 seasons = {"winter" : "01",
            "spring" : "04",
