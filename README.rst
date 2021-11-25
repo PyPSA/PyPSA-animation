@@ -26,7 +26,7 @@ It is released as `free software
 Example and screenshot
 ======================
 
-See `PyPSA-Eur-30 <https://www.pypsa.org/animations/pypsa-eur-30/>`_ for a running example.
+See `PyPSA-Eur-30 <https://smdumlao.github.io/japan-grid-animation/pypsa-eur-animation/>`_ for a running example.
 
 Screenshot:
 
